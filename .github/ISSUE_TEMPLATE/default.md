@@ -1,9 +1,9 @@
 ---
 name: 작업 이슈
 about: 작업 내용, 목적, 완료 기준을 정리합니다.
-title: ''
-labels: ''
-assignees: ''
+title: ""
+labels: ""
+assignees: ""
 ---
 
 ## 작업 내용

@@ -1,1 +1,1 @@
-export const APP_NAME = 'debate-tracker'
+export const APP_NAME = "debate-tracker";

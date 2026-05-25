@@ -211,21 +211,7 @@ jobs:
                       {
                         type: "text",
                         text: {
-                          content: "GitHub Body"
-                        }
-                      }
-                    ]
-                  }
-                },
-                {
-                  object: "block",
-                  type: "paragraph",
-                  paragraph: {
-                    rich_text: [
-                      {
-                        type: "text",
-                        text: {
-                          content: "원본 GitHub Issue/PR 본문을 Markdown 형식으로 보관합니다."
+                          content: "Content"
                         }
                       }
                     ]

@@ -7,6 +7,8 @@ on:
       - edited
       - closed
       - reopened
+      - assigned
+      - unassigned
 
   pull_request:
     types:
@@ -14,6 +16,8 @@ on:
       - edited
       - closed
       - reopened
+      - assigned
+      - unassigned
 
 permissions:
   contents: read
@@ -64,6 +68,7 @@ jobs:
               number: .issue.number,
               url: .issue.html_url,
               author: .issue.user.login,
+              assignee: ((.issue.assignees // []) | map(.login) | join(", ")),
               createdAt: .issue.created_at,
               body: (.issue.body // "")
             }' "$GITHUB_EVENT_PATH" > github-event-data.json
@@ -84,6 +89,7 @@ jobs:
               number: .pull_request.number,
               url: .pull_request.html_url,
               author: .pull_request.user.login,
+              assignee: ((.pull_request.assignees // []) | map(.login) | join(", ")),
               createdAt: .pull_request.created_at,
               body: (.pull_request.body // "")
             }' "$GITHUB_EVENT_PATH" > github-event-data.json
@@ -184,6 +190,15 @@ jobs:
                     }
                   ]
                 },
+                "Assignee": {
+                  rich_text: [
+                    {
+                      text: {
+                        content: $e.assignee
+                      }
+                    }
+                  ]
+                },
                 "Created At": {
                   date: {
                     start: $e.createdAt
@@ -203,20 +218,6 @@ jobs:
             '($event[0]) as $e |
             {
               children: [
-                {
-                  object: "block",
-                  type: "heading_2",
-                  heading_2: {
-                    rich_text: [
-                      {
-                        type: "text",
-                        text: {
-                          content: "Content"
-                        }
-                      }
-                    ]
-                  }
-                },
                 {
                   object: "block",
                   type: "code",

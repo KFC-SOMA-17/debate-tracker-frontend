@@ -64,7 +64,8 @@ jobs:
               number: .issue.number,
               url: .issue.html_url,
               author: .issue.user.login,
-              createdAt: .issue.created_at
+              createdAt: .issue.created_at,
+              body: (.issue.body // "")
             }' "$GITHUB_EVENT_PATH" > github-event-data.json
 
           elif [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
@@ -83,7 +84,8 @@ jobs:
               number: .pull_request.number,
               url: .pull_request.html_url,
               author: .pull_request.user.login,
-              createdAt: .pull_request.created_at
+              createdAt: .pull_request.created_at,
+              body: (.pull_request.body // "")
             }' "$GITHUB_EVENT_PATH" > github-event-data.json
 
           else
@@ -192,6 +194,71 @@ jobs:
 
           cat notion-page-properties.json
 
+      - name: Build Notion page content
+        run: |
+          set -euo pipefail
+
+          jq -n \
+            --slurpfile event github-event-data.json \
+            '($event[0]) as $e |
+            {
+              children: [
+                {
+                  object: "block",
+                  type: "heading_2",
+                  heading_2: {
+                    rich_text: [
+                      {
+                        type: "text",
+                        text: {
+                          content: "GitHub Body"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  object: "block",
+                  type: "paragraph",
+                  paragraph: {
+                    rich_text: [
+                      {
+                        type: "text",
+                        text: {
+                          content: "원본 GitHub Issue/PR 본문을 Markdown 형식으로 보관합니다."
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  object: "block",
+                  type: "code",
+                  code: {
+                    rich_text: [
+                      {
+                        type: "text",
+                        text: {
+                          content: (
+                            if $e.body == "" then
+                              "No body provided."
+                            elif ($e.body | length) > 1900 then
+                              ($e.body[0:1900] + "\n\n... truncated")
+                            else
+                              $e.body
+                            end
+                          )
+                        }
+                      }
+                    ],
+                    language: "markdown"
+                  }
+                }
+              ]
+            }' > notion-page-content.json
+
+          cat notion-page-content.json
+
       - name: Create or update Notion page
         run: |
           set -euo pipefail
@@ -199,14 +266,14 @@ jobs:
           if [ -z "${PAGE_ID}" ]; then
             echo "No existing Notion page found. Creating a new page."
 
-            jq \
+            jq -s \
               --arg dataSourceId "$NOTION_DATA_SOURCE_ID" \
-              '. + {
+              '.[0] * .[1] + {
                 parent: {
                   type: "data_source_id",
                   data_source_id: $dataSourceId
                 }
-              }' notion-page-properties.json > notion-create-payload.json
+              }' notion-page-properties.json notion-page-content.json > notion-create-payload.json
 
             HTTP_STATUS=$(curl -sS -o notion-create-response.json -w "%{http_code}" \
               -X POST "https://api.notion.com/v1/pages" \
@@ -224,7 +291,7 @@ jobs:
             fi
 
           else
-            echo "Existing Notion page found: ${PAGE_ID}. Updating page."
+            echo "Existing Notion page found: ${PAGE_ID}. Updating page properties only."
 
             HTTP_STATUS=$(curl -sS -o notion-update-response.json -w "%{http_code}" \
               -X PATCH "https://api.notion.com/v1/pages/${PAGE_ID}" \

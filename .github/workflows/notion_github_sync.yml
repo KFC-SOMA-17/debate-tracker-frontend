@@ -121,7 +121,7 @@ jobs:
             }' > notion-query-payload.json
 
           HTTP_STATUS=$(curl -sS -o notion-query-response.json -w "%{http_code}" \
-            -X PATCH "https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query" \
+            -X POST "https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query" \
             -H "Authorization: Bearer ${NOTION_API_KEY}" \
             -H "Notion-Version: ${NOTION_VERSION}" \
             -H "Content-Type: application/json" \

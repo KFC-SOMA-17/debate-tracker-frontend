@@ -19,12 +19,25 @@ Create practical, implementation-ready guidance that can be directly used by eng
 
 Clean design style focuses on simplicity, minimalism, and high usability, using ample whitespace, legible typography, and limited color palettes to reduce visual clutter
 
+## Project Source of Truth
+
+- For Debate Tracker, `docs/design/DESIGN.md` is the authoritative implementation guide.
+- If this universal skill conflicts with project-specific rules, follow `docs/design/DESIGN.md`.
+- Always align guidance with the project token architecture, naming conventions, and component mapping rules documented there.
+
 ## Style Foundations
 
 - Visual style: minimal, clean
 - Typography scale: 12/14/16/20/24/32 | Fonts: primary=Roboto, display=Poppins, mono=Inconsolata | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
 - Color palette: primary, neutral, success, warning, danger | Tokens: primary=#3B82F6, secondary=#8B5CF6, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#111827
-- Spacing scale: 8pt baseline grid
+- Spacing scale: use project spacing tokens (`--spacing-*`) based on 4px increments
+
+## Debate Tracker Non-Negotiables (Must)
+
+- Use semantic tokens in component/page rules; do not prescribe raw hex values in implementation guidance.
+- Do not use base color tokens (`--color-base-*`) directly in component usage examples; map through semantic tokens first.
+- Use only defined spacing and radius token scales from `docs/design/DESIGN.md`; avoid arbitrary pixel values.
+- When proposing component rules, include explicit token mapping for surface/text/border/status roles.
 
 ## Accessibility
 
@@ -53,6 +66,7 @@ clear, friendly
 - When uncertain, prioritize accessibility and clarity over novelty.
 - Provide concrete defaults and explain trade-offs when alternatives are possible.
 - Keep guidance opinionated, concise, and implementation-focused.
+- For Debate Tracker tasks, include a short "Token Mapping" subsection that references semantic token names from `docs/design/DESIGN.md`.
 
 ## Guideline Authoring Workflow
 

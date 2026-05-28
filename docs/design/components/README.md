@@ -20,6 +20,7 @@
 | 9. Quote Box | QuoteBox | `src/shared/ui/quote-box` | Shared/UI/QuoteBox |
 | Header | AppHeader (shell), HeaderBrand | `src/shared/ui/header` | Shared/UI/AppHeader |
 | Modal | Modal (dialog / fullscreen) | `src/shared/ui/modal` | Shared/UI/Modal |
+| Toast | Toast, ToastProvider, `useToast` | `src/shared/ui/toast` | Shared/UI/Toast |
 | 10. Service-specific (조합) | trailing 주입·상태 매핑 | `app` / `features/*` | — |
 
 ## Figma 추출 nodeId (대표)

@@ -73,7 +73,7 @@ export function ModalRoot({
   return createPortal(
     <ModalContext.Provider value={contextValue}>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-bg-inverse/50 p-4"
+        className="fixed inset-0 z-modal flex items-center justify-center bg-bg-inverse/50 p-4"
         onClick={handleOverlayClick}
         data-testid="modal-overlay"
       >

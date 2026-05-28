@@ -17,7 +17,6 @@ dist-ssr
 *.local
 .env
 .env.*
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -28,7 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
 # AI generated files
 .cursor
 !.cursor/settings.json
+*storybook.log
+storybook-static

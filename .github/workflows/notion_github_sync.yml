@@ -116,6 +116,10 @@ jobs:
           jq -n \
             --slurpfile event github-event-data.json \
             '($event[0]) as $e |
+            ($e.type // (if env.GITHUB_EVENT_NAME == "issues" then "Issue" elif env.GITHUB_EVENT_NAME == "pull_request" then "Pull Request" else null end)) as $eventType |
+            if $eventType == null then
+              error("Unable to resolve event type for Notion query")
+            else
             {
               page_size: 1,
               filter: {
@@ -123,7 +127,7 @@ jobs:
                   {
                     property: "Type",
                     select: {
-                      equals: $e.type
+                      equals: $eventType
                     }
                   },
                   {
@@ -134,7 +138,8 @@ jobs:
                   }
                 ]
               }
-            }' > notion-query-payload.json
+            }
+            end' > notion-query-payload.json
 
           HTTP_STATUS=$(curl -sS -o notion-query-response.json -w "%{http_code}" \
             -X POST "https://api.notion.com/v1/data_sources/${NOTION_DATA_SOURCE_ID}/query" \
@@ -162,6 +167,10 @@ jobs:
           jq -n \
             --slurpfile event github-event-data.json \
             '($event[0]) as $e |
+            ($e.type // (if env.GITHUB_EVENT_NAME == "issues" then "Issue" elif env.GITHUB_EVENT_NAME == "pull_request" then "Pull Request" else null end)) as $eventType |
+            if $eventType == null then
+              error("Unable to resolve event type for Notion page properties")
+            else
             {
               properties: {
                 "Name": {
@@ -175,7 +184,7 @@ jobs:
                 },
                 "Type": {
                   select: {
-                    name: $e.type
+                    name: $eventType
                   }
                 },
                 "Status": {
@@ -224,7 +233,8 @@ jobs:
                   )
                 }
               }
-            }' > notion-page-properties.json
+            }
+            end' > notion-page-properties.json
 
           cat notion-page-properties.json
 

@@ -19,6 +19,7 @@
 | 8. Empty/Loading/Error | EmptyState, LoadingState, ErrorState | `src/shared/ui/feedback` | Shared/UI/Feedback |
 | 9. Quote Box | QuoteBox | `src/shared/ui/quote-box` | Shared/UI/QuoteBox |
 | Header | AppHeader (shell), HeaderBrand | `src/shared/ui/header` | Shared/UI/AppHeader |
+| Modal | Modal (dialog / fullscreen) | `src/shared/ui/modal` | Shared/UI/Modal |
 | 10. Service-specific (조합) | trailing 주입·상태 매핑 | `app` / `features/*` | — |
 
 ## Figma 추출 nodeId (대표)
@@ -32,3 +33,5 @@
 | Global Navigation | `3:1111` |
 | Empty State | `3:1383` |
 | Quote Box | `3:1432` |
+| Modal — 토론 주제 입력 (dialog) | `134:75` |
+| Modal — 실시간 주장 트리 (fullscreen) | `134:79` |

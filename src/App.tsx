@@ -1,9 +1,20 @@
-import { APP_NAME } from "@/shared/lib/app";
+import { useState } from "react";
+import { DebateSessionLayout } from "@/app/layouts/DebateSessionLayout";
+import type { DebateSessionPhase } from "@/app/layouts/DebateSessionLayoutContext";
+import { MainDashboardPagePlaceholder } from "@/pages/main-dashboard/MainDashboardPagePlaceholder";
 
 export default function App() {
+  const [phase, setPhase] = useState<DebateSessionPhase>("idle");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-      <p className="text-lg font-medium">Hello {APP_NAME}</p>
-    </div>
+    <DebateSessionLayout
+      phase={phase}
+      topic={phase !== "idle" ? "나의 토론 주제" : undefined}
+      elapsedLabel="24:18"
+      onStartDebate={() => setPhase("active")}
+      onEndDebate={() => setPhase("ended")}
+    >
+      <MainDashboardPagePlaceholder />
+    </DebateSessionLayout>
   );
 }

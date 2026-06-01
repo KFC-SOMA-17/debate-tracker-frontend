@@ -1,7 +1,9 @@
 import { useCallback } from "react";
 import { Group, Separator, useGroupRef } from "react-resizable-panels";
+import { useDebateSessionLayout } from "@/app/layouts/DebateSessionLayoutContext";
 import { useUiStore } from "@/shared/store/uiStore";
 import { cn } from "@/shared/lib/cn";
+import { MainDashboardPanelIdleEmpty } from "./MainDashboardPanelIdleEmpty";
 import {
   createDefaultSplitLayout,
   getDefaultSplitRatio,
@@ -17,8 +19,10 @@ export type MainDashboardSplitViewProps = {
 };
 
 export function MainDashboardSplitView({ className }: MainDashboardSplitViewProps) {
+  const { phase } = useDebateSessionLayout();
   const groupRef = useGroupRef();
   const setSplitRatio = useUiStore(state => state.setSplitRatio);
+  const showIdleEmpty = phase === "idle";
 
   const applyDefaultLayout = useCallback(() => {
     groupRef.current?.setLayout(createDefaultSplitLayout());
@@ -46,7 +50,9 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         railLabel="속기록"
         expandDirection="right"
         onRestoreLayout={applyDefaultLayout}
-      />
+      >
+        {showIdleEmpty ? <MainDashboardPanelIdleEmpty panel="transcript" /> : null}
+      </SplitPanelShell>
       <Separator className="split-panel-handle" disableDoubleClick onDoubleClick={applyDefaultLayout}>
         <SplitResizeGrip />
       </Separator>
@@ -57,7 +63,9 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         railLabel="쟁점별 요약"
         expandDirection="left"
         onRestoreLayout={applyDefaultLayout}
-      />
+      >
+        {showIdleEmpty ? <MainDashboardPanelIdleEmpty panel="issueSummary" /> : null}
+      </SplitPanelShell>
     </Group>
   );
 }

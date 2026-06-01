@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Panel, usePanelRef } from "react-resizable-panels";
 import { SPLIT_COLLAPSE_THRESHOLD, SPLIT_COLLAPSED_RAIL_PX } from "../constants/splitLayout";
 import { CollapsedPanelRail } from "./CollapsedPanelRail";
@@ -10,6 +10,7 @@ export type SplitPanelShellProps = {
   railLabel: string;
   expandDirection?: "left" | "right";
   onRestoreLayout: () => void;
+  children?: ReactNode;
 };
 
 export function SplitPanelShell({
@@ -19,6 +20,7 @@ export function SplitPanelShell({
   railLabel,
   expandDirection = "right",
   onRestoreLayout,
+  children,
 }: SplitPanelShellProps) {
   const panelRef = usePanelRef();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -45,7 +47,9 @@ export function SplitPanelShell({
         {isCollapsed ? (
           <CollapsedPanelRail label={railLabel} expandDirection={expandDirection} onExpand={handleRestoreLayout} />
         ) : (
-          <div className="min-h-0 flex-1" aria-label={ariaLabel} role="region" />
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden" aria-label={ariaLabel} role="region">
+            {children}
+          </div>
         )}
       </div>
     </Panel>

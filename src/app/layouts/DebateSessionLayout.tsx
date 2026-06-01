@@ -43,22 +43,18 @@ export function DebateSessionLayout() {
     >
       <div className="flex min-h-screen flex-col bg-bg-subtle">
         <AppHeader brand={<HeaderBrand />} trailing={<DebateSessionHeaderTrailing />} />
-        <Navigation items={[...DEBATE_NAV_ITEMS]} activeId={DEBATE_NAV_IDS.mainDashboard} onNavigate={handleNavigate} />
+        <Navigation
+          items={[...DEBATE_NAV_ITEMS(phase)]}
+          activeId={DEBATE_NAV_IDS.mainDashboard}
+          onNavigate={handleNavigate}
+        />
         <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <Outlet />
         </main>
       </div>
 
-      <StartDebateModal
-        open={isStartModalOpen}
-        onOpenChange={setIsStartModalOpen}
-        onConfirm={confirmStartDebate}
-      />
-      <EndDebateConfirmModal
-        open={isEndModalOpen}
-        onOpenChange={setIsEndModalOpen}
-        onConfirm={confirmEndDebate}
-      />
+      <StartDebateModal open={isStartModalOpen} onOpenChange={setIsStartModalOpen} onConfirm={confirmStartDebate} />
+      <EndDebateConfirmModal open={isEndModalOpen} onOpenChange={setIsEndModalOpen} onConfirm={confirmEndDebate} />
     </DebateSessionLayoutContext.Provider>
   );
 }

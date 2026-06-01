@@ -1,9 +1,9 @@
-/**
- * 클래스 이름 배열을 결합하여 문자열로 반환합니다. Tailwind CSS의 `cn` 함수를 래핑합니다.
- * @param classes - 클래스 이름 배열
- * @returns 클래스 이름 문자열
- */
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-export function cn(...classes: (string | false | null | undefined)[]): string {
-  return classes.filter(Boolean).join(" ");
+/**
+ * 조건부 클래스를 합치고, Tailwind 충돌 클래스는 뒤쪽 값이 이기도록 병합
+ */
+export function cn(...classes: ClassValue[]): string {
+  return twMerge(clsx(classes));
 }

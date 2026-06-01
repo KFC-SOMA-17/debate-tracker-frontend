@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/shared/lib/cn";
 
-export interface ModalFooterProps extends HTMLAttributes<HTMLDivElement> {}
+export type ModalFooterProps = HTMLAttributes<HTMLDivElement>;
 
 export function ModalFooter({ className, children, ...props }: ModalFooterProps) {
   return (

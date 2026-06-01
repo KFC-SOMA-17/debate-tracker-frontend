@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { XIcon } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/cn";
 
-export interface ToastCloseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
+export type ToastCloseButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function ToastCloseButton({ className, ...props }: ToastCloseButtonProps) {
   return (

@@ -4,7 +4,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { AppHeader, HeaderBrand } from "@/shared/ui/header";
 import { Modal } from "./index";
-import type { ModalSize } from "./useModalContext";
+import type { ModalSize } from "./Modal.types";
 
 function ModalStoryShell({ children }: { children: ReactNode }) {
   return (

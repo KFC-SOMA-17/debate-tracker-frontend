@@ -3,7 +3,7 @@ import { AlertCircleIcon, CheckCircleIcon } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/cn";
 import { ToastCloseButton } from "./ToastCloseButton";
 import { useToastTimer } from "./useToastTimer";
-import type { ToastDuration, ToastPosition, ToastVariant } from "./toast-context";
+import type { ToastDuration, ToastPosition, ToastVariant } from "./Toast.types";
 
 export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   variant?: ToastVariant;

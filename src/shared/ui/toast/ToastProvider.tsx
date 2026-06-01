@@ -2,13 +2,8 @@
 
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { ToastViewport } from "./ToastViewport";
-import {
-  ToastContext,
-  type ToastContextValue,
-  type ToastInput,
-  type ToastPosition,
-  type ToastRecord,
-} from "./toast-context";
+import { ToastContext } from "./useToast";
+import type { ToastContextValue, ToastInput, ToastPosition, ToastRecord } from "./Toast.types";
 
 let toastIdCounter = 0;
 

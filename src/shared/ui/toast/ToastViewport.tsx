@@ -1,7 +1,8 @@
 import { createPortal } from "react-dom";
 import { cn } from "@/shared/lib/cn";
 import { Toast } from "./Toast";
-import { TOAST_POSITIONS, type ToastPosition, type ToastRecord } from "./toast-context";
+import { TOAST_POSITIONS } from "./Toast.constants";
+import type { ToastPosition, ToastRecord } from "./Toast.types";
 
 const positionRegionClasses: Record<ToastPosition, string> = {
   "top-left": "top-[5%] left-4 items-start",

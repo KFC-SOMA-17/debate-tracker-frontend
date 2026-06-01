@@ -1,4 +1,4 @@
-import { createContext, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export type ToastVariant = "default" | "success" | "error";
 
@@ -36,14 +36,3 @@ export type ToastContextValue = {
   dismiss: (id: string) => void;
   dismissAll: () => void;
 };
-
-export const ToastContext = createContext<ToastContextValue | null>(null);
-
-export const TOAST_POSITIONS: ToastPosition[] = [
-  "top-left",
-  "top-center",
-  "top-right",
-  "bottom-left",
-  "bottom-center",
-  "bottom-right",
-];

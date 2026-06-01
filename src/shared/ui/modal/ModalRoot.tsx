@@ -1,7 +1,8 @@
 import { useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/shared/lib/cn";
-import { ModalContext, type ModalSize } from "./useModalContext";
+import { ModalContext } from "./useModalContext";
+import type { ModalSize } from "./Modal.types";
 import { useBodyScrollLock, useEscapeToClose, useFocusTrap } from "./useModalEffects";
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {

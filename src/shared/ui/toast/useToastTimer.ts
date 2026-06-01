@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { ToastDuration } from "./toast-context";
+import type { ToastDuration } from "./Toast.types";
 
 type UseToastTimerOptions = {
   duration: ToastDuration;

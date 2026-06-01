@@ -18,4 +18,4 @@ export { ModalBody, type ModalBodyProps } from "./ModalBody";
 export { ModalFooter, type ModalFooterProps } from "./ModalFooter";
 export { ModalCloseButton, type ModalCloseButtonProps } from "./ModalCloseButton";
 export { useModalContext } from "./useModalContext";
-export type { ModalSize } from "./useModalContext";
+export type { ModalSize, ModalContextValue } from "./Modal.types";

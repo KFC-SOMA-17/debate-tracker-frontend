@@ -4,7 +4,7 @@ import { ClockIcon, RadioIcon } from "@/shared/ui/icons";
 import { useDebateSessionLayout } from "./DebateSessionLayoutContext";
 
 export function DebateSessionHeaderTrailing() {
-  const { phase, elapsedLabel = "00:00", onStartDebate, onEndDebate } = useDebateSessionLayout();
+  const { phase, elapsedLabel = "00:00", openStartDebateModal, openEndDebateModal } = useDebateSessionLayout();
 
   if (phase === "idle") {
     return (
@@ -12,7 +12,7 @@ export function DebateSessionHeaderTrailing() {
         <Badge variant="status" tone="muted" leftIcon={<ClockIcon className="size-3.5" aria-hidden />}>
           토론 대기 중
         </Badge>
-        <Button type="button" variant="primary" size="md" onClick={onStartDebate}>
+        <Button type="button" variant="primary" size="md" onClick={openStartDebateModal}>
           토론 시작
         </Button>
       </>
@@ -31,7 +31,7 @@ export function DebateSessionHeaderTrailing() {
         <Badge variant="status" tone="success" leftIcon={<RadioIcon className="size-3.5" aria-hidden />}>
           녹음 정상
         </Badge>
-        <Button type="button" variant="danger" size="md" onClick={onEndDebate}>
+        <Button type="button" variant="danger" size="md" onClick={openEndDebateModal}>
           토론 종료
         </Button>
       </>

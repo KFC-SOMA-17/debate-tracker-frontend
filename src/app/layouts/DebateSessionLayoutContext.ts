@@ -4,12 +4,11 @@ export type DebateSessionPhase = "idle" | "active" | "ended";
 
 export type DebateSessionLayoutContextValue = {
   phase: DebateSessionPhase;
-  /** 토론 진행 중·종료 후 header/배너용 (idle에서는 미사용) */
-  topic?: string;
-  /** 진행 시간 표시 mock (예: "24:18") */
+  /** null이면 배너 placeholder 표시 */
+  debateTopic: string | null;
   elapsedLabel?: string;
-  onStartDebate?: () => void;
-  onEndDebate?: () => void;
+  openStartDebateModal: () => void;
+  openEndDebateModal: () => void;
 };
 
 const DebateSessionLayoutContext = createContext<DebateSessionLayoutContextValue | null>(null);

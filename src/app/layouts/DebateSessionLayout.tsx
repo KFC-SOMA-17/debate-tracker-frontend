@@ -1,4 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
+import { EndDebateConfirmModal } from "@/features/mainDashboard/components/EndDebateConfirmModal";
+import { StartDebateModal } from "@/features/mainDashboard/components/StartDebateModal";
 import { DEBATE_ROUTES } from "@/app/router";
 import { AppHeader, HeaderBrand } from "@/shared/ui/header";
 import { Navigation } from "@/shared/ui/navigation";
@@ -9,7 +11,19 @@ import { useDebateSessionLayoutState } from "./useDebateSessionLayoutState";
 
 export function DebateSessionLayout() {
   const navigate = useNavigate();
-  const { phase, topic, elapsedLabel, onStartDebate, onEndDebate } = useDebateSessionLayoutState();
+  const {
+    phase,
+    debateTopic,
+    elapsedLabel,
+    isStartModalOpen,
+    setIsStartModalOpen,
+    isEndModalOpen,
+    setIsEndModalOpen,
+    openStartDebateModal,
+    openEndDebateModal,
+    confirmStartDebate,
+    confirmEndDebate,
+  } = useDebateSessionLayoutState();
 
   const handleNavigate = (navId: string) => {
     if (navId === DEBATE_NAV_IDS.mainDashboard) {
@@ -21,10 +35,10 @@ export function DebateSessionLayout() {
     <DebateSessionLayoutContext.Provider
       value={{
         phase,
-        topic,
+        debateTopic,
         elapsedLabel,
-        onStartDebate,
-        onEndDebate,
+        openStartDebateModal,
+        openEndDebateModal,
       }}
     >
       <div className="flex min-h-screen flex-col bg-bg-subtle">
@@ -34,6 +48,17 @@ export function DebateSessionLayout() {
           <Outlet />
         </main>
       </div>
+
+      <StartDebateModal
+        open={isStartModalOpen}
+        onOpenChange={setIsStartModalOpen}
+        onConfirm={confirmStartDebate}
+      />
+      <EndDebateConfirmModal
+        open={isEndModalOpen}
+        onOpenChange={setIsEndModalOpen}
+        onConfirm={confirmEndDebate}
+      />
     </DebateSessionLayoutContext.Provider>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DebateSessionLayout } from "@/app/layouts/DebateSessionLayout";
 import type { DebateSessionPhase } from "@/app/layouts/DebateSessionLayoutContext";
-import { MainDashboardPagePlaceholder } from "@/pages/main-dashboard/MainDashboardPagePlaceholder";
+import { MainDashboardPagePlaceholder } from "@/pages/mainDashboard/MainDashboardPagePlaceholder";
 
 export default function App() {
   const [phase, setPhase] = useState<DebateSessionPhase>("idle");

@@ -17,7 +17,7 @@
 | 6. Form Controls | Input, Checkbox, Toggle | `input`, `checkbox`, `toggle` | 각 스토리 |
 | 7. Accordion | Accordion | `src/shared/ui/accordion` | Shared/UI/Accordion |
 | 8. Empty/Loading/Error | EmptyState, LoadingState, ErrorState | `src/shared/ui/feedback` | Shared/UI/Feedback |
-| 9. Quote Box | QuoteBox | `src/shared/ui/quote-box` | Shared/UI/QuoteBox |
+| 9. Quote Box | QuoteBox | `src/shared/ui/quoteBox` | Shared/UI/QuoteBox |
 | Header | AppHeader (shell), HeaderBrand | `src/shared/ui/header` | Shared/UI/AppHeader |
 | Modal | Modal (dialog / fullscreen) | `src/shared/ui/modal` | Shared/UI/Modal |
 | Toast | Toast, ToastProvider, `useToast` | `src/shared/ui/toast` | Shared/UI/Toast |

@@ -69,6 +69,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Storybook tests (Vitest browser)
+        run: pnpm test:storybook
+
       - name: E2E tests
         run: pnpm test:e2e
         env:

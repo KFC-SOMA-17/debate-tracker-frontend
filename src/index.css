@@ -201,27 +201,32 @@
     color: var(--color-status-danger);
   }
 
-  /** react-resizable-panels — 4단계 MainDashboardSplitView에서 사용 */
+  /** react-resizable-panels — MainDashboardSplitView Separator */
   .split-panel-handle {
     position: relative;
+    z-index: 1;
+    display: flex;
     flex-shrink: 0;
-    width: 1px;
-    background-color: var(--color-border-default);
+    align-items: center;
+    justify-content: center;
+    width: 0.625rem;
+    cursor: col-resize;
+    background-color: transparent;
     transition: background-color 150ms ease;
   }
 
-  .split-panel-handle[data-panel-group-direction="horizontal"] {
-    cursor: col-resize;
+  .split-panel-handle::before {
+    position: absolute;
+    inset: 0;
+    width: 1px;
+    margin: 0 auto;
+    background-color: var(--color-border-default);
+    content: "";
+    transition: background-color 150ms ease;
   }
 
-  .split-panel-handle[data-panel-group-direction="vertical"] {
-    height: 1px;
-    width: 100%;
-    cursor: row-resize;
-  }
-
-  .split-panel-handle:hover,
-  .split-panel-handle[data-resize-handle-active] {
+  .split-panel-handle:hover::before,
+  .split-panel-handle:active::before {
     background-color: var(--color-border-strong);
   }
 

@@ -40,6 +40,12 @@
   --color-status-warning: var(--color-base-amber-600);
   --color-status-danger: var(--color-base-red-600);
 
+  --color-status-success-subtle: #f0fdf4;
+  --color-status-warning-subtle: #fffbeb;
+  --color-status-danger-subtle: #fef2f2;
+  --color-status-info-subtle: #eff6ff;
+  --color-status-muted-subtle: var(--color-base-gray-150);
+
   /* Typography tokens */
   --font-body: "Roboto", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Poppins", "Roboto", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;

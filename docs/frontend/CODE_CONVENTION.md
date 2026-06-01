@@ -73,6 +73,60 @@ src
 - 사용자 관찰 가능 결과 중심으로 검증
 - 외부 API/네트워크는 MSW 기반 mock 사용
 
+## 10. 파일·폴더 네이밍
+
+`src` 아래 **소스 파일**은 역할에 따라 케이스를 구분한다. kebab-case(`toast-context.ts`, `use-modal-effects.ts`)는 **사용하지 않는다**.
+
+### 소스 파일 (`src/**`)
+
+| 대상 | 케이스 | 확장자 | 예시 |
+|------|--------|--------|------|
+| React 컴포넌트 | **PascalCase** | `.tsx` | `Button.tsx`, `ModalRoot.tsx`, `ToastProvider.tsx` |
+| Hook | **camelCase**, `use` 접두사 | `.ts` / `.tsx` | `useToast.ts`, `useModalEffects.ts` |
+| Context + 전용 hook (한 쌍) | **camelCase** | `.ts` | `useModalContext.ts` — `createContext`와 hook을 **같은 파일**에 둔다 (`ModalContext.ts` ❌) |
+| 컴포넌트 묶음의 타입·상수 | **아래 §10.1** | `.ts` | `Toast.types.ts`, `constants.ts` |
+| 유틸·순수 함수 | **camelCase** | `.ts` | `cn.ts`, `formatDuration.ts` |
+| 배럴 export | `index` | `.ts` | `index.ts` |
+| Storybook | 컴포넌트명 + `.stories` | `.tsx` | `Button.stories.tsx` |
+| 테스트 | 대상명 + `.test` | `.ts` / `.tsx` | `useToast.test.ts` |
+
+### 10.1 컴포넌트 폴더 안의 타입·상수 파일
+
+이미 `toast/`, `modal/`처럼 **컴포넌트 묶음 폴더**가 있으면, 파일명에 `toast.`처럼 폴더명을 **다시 붙이지 않는다** (`toast.constants.ts` ❌).
+
+우선순위는 다음과 같다.
+
+1. **역할만** — 폴더가 네임스페이스 (`types.ts`, `constants.ts`)
+2. **PascalCase 엔티티 + dot suffix** — 묶음의 대표 이름이 분명할 때 (`Toast.types.ts`, `Toast.constants.ts`)
+   - `Button.stories.tsx`, `useToast.test.ts`와 같은 **부속 파일** 네이밍과 맞춘다.
+   - 컴포넌트가 아니어도 `.ts`이면 PascalCase 파일명을 써도 된다.
+3. **camelCase 단일 모듈** — `shared/lib`, `api`, `utils`처럼 컴포넌트 폴더 밖 (`formatDuration.ts`)
+
+Toast처럼 `Toast.tsx`·`ToastProvider.tsx` 여러 파일이 한 묶음이면 **`Toast.constants.ts` / `Toast.types.ts`** 가 자연스럽다. Modal 전용 타입만 모을 때는 **`Modal.types.ts`** 도 동일 규칙이다.
+
+Context 객체는 **`useToast.ts`**, **`useModalContext.ts`** 처럼 hook 파일에 함께 둔다. Provider·Root는 해당 hook 파일에서 `ToastContext` / `ModalContext`만 import한다.
+
+### 폴더
+
+- **feature / pages** 슬라이스: URL·도메인 slug는 kebab-case 허용 (`features/debate-session/`)
+- **shared/ui** 컴포넌트 묶음: 단수·소문자 디렉터리 허용 (`button/`, `modal/`, `toast/`)
+- 폴더 kebab-case ≠ 파일 kebab-case. 폴더만 kebab이고 **파일은 위 표를 따른다**.
+
+### 예외 (kebab-case 허용)
+
+- 프로젝트 루트·도구 설정: `eslint.config.js`, `vite.config.ts`
+- `docs/`, `public/` 등 비-`src` 경로
+
+### import 경로
+
+- 파일명과 export 이름을 맞춘다 (`Toast.tsx` → `export function Toast`).
+- 같은 feature/컴포넌트 폴더 안에서는 **상대 경로** (`./useToast.ts`)를 우선한다.
+
+### 기존 코드
+
+- kebab-case로 남아 있는 파일은 **수정할 때** PascalCase/camelCase로 맞춘다.
+- 한 PR에서 대규모 일괄 rename은 팀과 합의 후 진행한다.
+
 ## 관련 문서
 
 - [ICON_CONVENTION](ICON_CONVENTION.md)

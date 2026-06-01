@@ -48,6 +48,20 @@ pnpm test:e2e
 - [디자인 가이드](docs/design/DESIGN.md)
 - [디자인 스킬](docs/design/SKILL.md)
 - [Figma MCP 매뉴얼](docs/figma-mcp-manual.md)
+- [공통 컴포넌트 인벤토리](docs/design/components/README.md)
+
+### UI 개발
+
+```bash
+pnpm storybook      # 공통 컴포넌트 Storybook (http://localhost:6006)
+pnpm build-storybook
+```
+
+Chromatic 배포는 `CHROMATIC_PROJECT_TOKEN` 환경 변수를 사용합니다. 토큰은 Git에 커밋하지 않고 팀 내부 채널로만 공유하세요.
+
+- 로컬: 프로젝트 루트 `.env`에 `CHROMATIC_PROJECT_TOKEN=...` 설정 후 `pnpm chromatic` (`dotenv-cli`가 `.env`를 읽어 chromatic에 전달)
+- 이미 셸에 `export CHROMATIC_PROJECT_TOKEN=...` 되어 있으면 `.env` 없이도 동작하며, dotenv는 기존 값을 덮어쓰지 않음
+- CI: GitHub **Settings → Secrets → Actions**에 `CHROMATIC_PROJECT_TOKEN` 등록
 
 ### Frontend Conventions
 

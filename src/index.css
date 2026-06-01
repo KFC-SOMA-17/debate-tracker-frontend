@@ -76,6 +76,10 @@
   --radius-lg: 0.75rem;
   --radius-xl: 0.625rem;
   --radius-pill: 62.4375rem;
+
+  /* Layering */
+  --z-index-modal: 50;
+  --z-index-toast: 60;
 }
 
 @layer base {

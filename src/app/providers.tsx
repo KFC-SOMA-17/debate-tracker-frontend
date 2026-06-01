@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { ReactNode } from "react";
+import { ToastProvider } from "@/shared/ui/toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,7 +19,9 @@ type ProvidersProps = {
 export function Providers({ children }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ToastProvider defaultPosition="top-center" defaultDuration={3000}>
+        {children}
+      </ToastProvider>
       {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}
     </QueryClientProvider>
   );

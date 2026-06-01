@@ -1,7 +1,7 @@
 import { useEffect, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 import { ModalCloseButton } from "./ModalCloseButton";
-import { useModalContext } from "./modal-context";
+import { useModalContext } from "./useModalContext";
 
 export interface ModalHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: ReactNode;
@@ -26,7 +26,10 @@ export function ModalHeader({
 
   return (
     <div
-      className={cn("flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-6 py-5", className)}
+      className={cn(
+        "flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-6 py-5",
+        className
+      )}
       {...props}
     >
       <div className="min-w-0 flex-1">

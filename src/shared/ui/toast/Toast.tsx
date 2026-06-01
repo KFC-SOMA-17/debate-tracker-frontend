@@ -2,7 +2,7 @@ import { useState, type HTMLAttributes, type ReactNode } from "react";
 import { AlertCircleIcon, CheckCircleIcon } from "@/shared/ui/icons";
 import { cn } from "@/shared/lib/cn";
 import { ToastCloseButton } from "./ToastCloseButton";
-import { useToastTimer } from "./use-toast-timer";
+import { useToastTimer } from "./useToastTimer";
 import type { ToastDuration, ToastPosition, ToastVariant } from "./toast-context";
 
 export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {

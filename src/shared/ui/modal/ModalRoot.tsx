@@ -1,16 +1,8 @@
-import {
-  useCallback,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type HTMLAttributes,
-  type ReactNode,
-} from "react";
+import { useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/shared/lib/cn";
-import { ModalContext, type ModalSize } from "./modal-context";
-import { useBodyScrollLock, useEscapeToClose, useFocusTrap } from "./use-modal-effects";
+import { ModalContext, type ModalSize } from "./useModalContext";
+import { useBodyScrollLock, useEscapeToClose, useFocusTrap } from "./useModalEffects";
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   open: boolean;
@@ -53,7 +45,7 @@ export function ModalRoot({
       panelRef,
       registerHasDescription,
     }),
-    [size, onClose, titleId, descriptionId, registerHasDescription],
+    [size, onClose, titleId, descriptionId, registerHasDescription]
   );
 
   useBodyScrollLock(open);
@@ -88,15 +80,15 @@ export function ModalRoot({
             "flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden border border-border-default bg-bg-elevated shadow-lg outline-none",
             size === "dialog" && "max-w-lg rounded-xl",
             size === "fullscreen" && "h-[calc(100vh-2rem)] max-w-[calc(100vw-2rem)] rounded-xl",
-            className,
+            className
           )}
-          onClick={(event) => event.stopPropagation()}
+          onClick={event => event.stopPropagation()}
           {...props}
         >
           {children}
         </div>
       </div>
     </ModalContext.Provider>,
-    document.body,
+    document.body
   );
 }

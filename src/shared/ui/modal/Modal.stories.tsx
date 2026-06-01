@@ -4,7 +4,7 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { AppHeader, HeaderBrand } from "@/shared/ui/header";
 import { Modal } from "./index";
-import type { ModalSize } from "./modal-context";
+import type { ModalSize } from "./useModalContext";
 
 function ModalStoryShell({ children }: { children: ReactNode }) {
   return (
@@ -22,10 +22,7 @@ function DialogTopicInputDemo() {
     <ModalStoryShell>
       <Button onClick={() => setOpen(true)}>모달 열기</Button>
       <Modal open={open} onOpenChange={setOpen} size="dialog">
-        <Modal.Header
-          title="토론 주제 입력"
-          description="토론을 시작하기 전에 주제를 입력해 주세요."
-        />
+        <Modal.Header title="토론 주제 입력" description="토론을 시작하기 전에 주제를 입력해 주세요." />
         <Modal.Body>
           <label className="flex flex-col gap-2 text-sm font-medium text-text-primary">
             토론 주제
@@ -50,14 +47,9 @@ function DialogConfirmDemo() {
     <ModalStoryShell>
       <Button onClick={() => setOpen(true)}>모달 열기</Button>
       <Modal open={open} onOpenChange={setOpen} size="dialog">
-        <Modal.Header
-          title="토론을 종료할까요?"
-          description="종료 후에는 실시간 속기록이 더 이상 갱신되지 않습니다."
-        />
+        <Modal.Header title="토론을 종료할까요?" description="종료 후에는 실시간 속기록이 더 이상 갱신되지 않습니다." />
         <Modal.Body>
-          <p className="text-sm text-text-secondary">
-            팀 분석·개인 분석 화면은 토론 종료 후에 이용할 수 있습니다.
-          </p>
+          <p className="text-sm text-text-secondary">팀 분석·개인 분석 화면은 토론 종료 후에 이용할 수 있습니다.</p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setOpen(false)}>
@@ -77,10 +69,7 @@ function FullscreenClaimTreeDemo() {
     <ModalStoryShell>
       <Button onClick={() => setOpen(true)}>전체 화면 모달 열기</Button>
       <Modal open={open} onOpenChange={setOpen} size="fullscreen">
-        <Modal.Header
-          title="실시간 주장 트리"
-          description="쟁점별 주장·근거 구조를 실시간으로 확인합니다."
-        />
+        <Modal.Header title="실시간 주장 트리" description="쟁점별 주장·근거 구조를 실시간으로 확인합니다." />
         <Modal.Body className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <div
             className="min-h-0 flex-1 rounded-xl border border-dashed border-border-default bg-bg-subtle"

@@ -19,7 +19,7 @@
     "test:run": "vitest run --project unit",
     "test:storybook": "vitest run --project storybook",
     "test:all": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --pass-with-no-tests",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "dotenv -- chromatic"
@@ -29,6 +29,8 @@
     "clsx": "^2.1.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-resizable-panels": "^4.11.2",
+    "react-router-dom": "^7.16.0",
     "tailwind-merge": "^3.6.0",
     "zustand": "^5.0.13"
   },

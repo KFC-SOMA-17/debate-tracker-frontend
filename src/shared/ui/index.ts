@@ -8,7 +8,7 @@ export * from "./header";
 export * from "./input";
 export * from "./modal";
 export * from "./navigation";
-export * from "./quote-box";
+export * from "./quoteBox";
 export * from "./tab";
 export * from "./toast";
 export * from "./toggle";

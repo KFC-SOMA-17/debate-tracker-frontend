@@ -19,23 +19,19 @@ const variantClasses: Record<BadgeVariant, string> = {
 
 const toneClasses: Record<BadgeTone, string> = {
   default: "bg-bg-muted text-text-primary",
-  success: "bg-bg-muted text-status-success",
-  warning: "bg-bg-muted text-status-warning",
-  danger: "bg-bg-muted text-status-danger",
-  info: "bg-bg-muted text-accent-primary",
-  muted: "bg-bg-subtle text-text-muted border border-border-subtle",
+  success: "bg-status-success-subtle text-status-success",
+  warning: "bg-status-warning-subtle text-status-warning",
+  danger: "bg-status-danger-subtle text-status-danger",
+  info: "bg-status-info-subtle text-accent-primary",
+  muted: "bg-status-muted-subtle text-text-primary",
 };
 
-export function Badge({
-  variant = "status",
-  tone = "default",
-  leftIcon,
-  className,
-  children,
-  ...props
-}: BadgeProps) {
+export function Badge({ variant = "status", tone = "default", leftIcon, className, children, ...props }: BadgeProps) {
   return (
-    <span className={cn("inline-flex items-center gap-1", variantClasses[variant], toneClasses[tone], className)} {...props}>
+    <span
+      className={cn("inline-flex items-center gap-1", variantClasses[variant], toneClasses[tone], className)}
+      {...props}
+    >
       {leftIcon}
       {children}
     </span>

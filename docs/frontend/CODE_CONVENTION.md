@@ -108,9 +108,11 @@ Context 객체는 **`useToast.ts`**, **`useModalContext.ts`** 처럼 hook 파일
 
 ### 폴더
 
-- **feature / pages** 슬라이스: URL·도메인 slug는 kebab-case 허용 (`features/debate-session/`)
-- **shared/ui** 컴포넌트 묶음: 단수·소문자 디렉터리 허용 (`button/`, `modal/`, `toast/`)
-- 폴더 kebab-case ≠ 파일 kebab-case. 폴더만 kebab이고 **파일은 위 표를 따른다**.
+- **소스 파일**은 kebab-case를 쓰지 않는다(§10 첫 문단). **디렉터리**도 기본적으로 kebab-case를 쓰지 않는다.
+- **pages / features** 슬라이스: **camelCase** 디렉터리 (`pages/mainDashboard/`, `features/debateSession/`).
+  - URL path가 kebab이어도 (`/debates/:id`) 폴더명과 route 문자열을 맞출 필요는 없다. kebab은 라우터·nav id 등 **경로 문자열**에만 둔다.
+- **shared/ui** 컴포넌트 묶음: 단어 하나면 소문자 (`button/`, `modal/`), 여러 단어면 **camelCase** (`quoteBox/`).
+- `main-dashboard/`, `quote-box/`처럼 kebab 디렉터리는 사용하지 않는다.
 
 ### 예외 (kebab-case 허용)
 

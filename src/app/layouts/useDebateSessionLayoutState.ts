@@ -1,11 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
 import { DEBATE_ROUTES, DEBATE_SESSION_MATCH } from "@/app/router";
 import { useAudioCapture } from "@/features/audioCapture/hooks/useAudioCapture";
 import { createDebate } from "@/features/debate/api/debateApi";
-import { formatElapsedTime } from "@/features/transcript/lib/formatElapsedTime";
 import { useTranscriptSession } from "@/features/transcript/hooks/useTranscriptSession";
 import type { DebateSessionPhase } from "./DebateSessionLayoutContext";
+import { useDebateElapsedLabel } from "./useDebateElapsedLabel";
 
 export function useDebateSessionLayoutState() {
   const navigate = useNavigate();
@@ -35,16 +35,10 @@ export function useDebateSessionLayoutState() {
     onChunk: buffer => transcript.sendPcm(buffer),
   });
 
-  const elapsedLabel = useMemo(() => {
-    if (phase === "idle") {
-      return undefined;
-    }
-    const lastSegment = transcript.segments[transcript.segments.length - 1];
-    if (!lastSegment) {
-      return "00:00";
-    }
-    return formatElapsedTime(lastSegment.endAt);
-  }, [phase, transcript.segments]);
+  const elapsedLabel = useDebateElapsedLabel({
+    startedAt: transcript.debateStartedAt,
+    running: phase === "active",
+  });
 
   const openStartDebateModal = () => {
     setIsStartModalOpen(true);

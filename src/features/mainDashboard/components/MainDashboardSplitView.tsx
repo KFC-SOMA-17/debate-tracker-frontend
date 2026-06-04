@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Group, Separator, useGroupRef } from "react-resizable-panels";
 import { useDebateSessionLayout } from "@/app/layouts/DebateSessionLayoutContext";
+import { IssueSummaryPanel } from "@/features/issueSummary/components/IssueSummaryPanel";
 import { TranscriptPanel } from "@/features/transcript/components/TranscriptPanel";
 import { useUiStore } from "@/shared/store/uiStore";
 import { cn } from "@/shared/lib/cn";
@@ -82,7 +83,11 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         expandDirection="left"
         onRestoreLayout={applyDefaultLayout}
       >
-        <MainDashboardPanelIdleEmpty panel="issueSummary" variant={variant} className="h-full" />
+        {phase === "idle" ? (
+          <MainDashboardPanelIdleEmpty panel="issueSummary" variant={variant} className="h-full" />
+        ) : (
+          <IssueSummaryPanel phase={phase} className="h-full" />
+        )}
       </SplitPanelShell>
     </Group>
   );

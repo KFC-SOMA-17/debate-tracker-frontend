@@ -17,11 +17,21 @@ export type SttConnectionStatus =
   | "error";
 
 export type UseSttWebSocketOptions = {
+  /** REST·라우트 debateId — DEBATE_START 수신 전 STOP 등 fallback */
+  sessionDebateId?: string;
   onMessage?: (message: SttWebSocketMessage) => void;
   onReady?: (debateId: number, debateIdString: string) => void;
   onEnded?: () => void;
   onError?: (error: SttErrorData) => void;
 };
+
+function parseNumericDebateId(value: string | undefined): number | null {
+  if (value == null || value === "") {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 export type UseSttWebSocketResult = {
   status: SttConnectionStatus;
@@ -36,7 +46,7 @@ export type UseSttWebSocketResult = {
 };
 
 export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWebSocketResult {
-  const { onMessage, onReady, onEnded, onError } = options;
+  const { sessionDebateId, onMessage, onReady, onEnded, onError } = options;
 
   const [status, setStatus] = useState<SttConnectionStatus>("idle");
   const [debateId, setDebateId] = useState<number | null>(null);
@@ -44,6 +54,14 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
   const connectionRef = useRef<SttWebSocketConnection | null>(null);
   const callbacksRef = useRef({ onMessage, onReady, onEnded, onError });
+  const debateIdRef = useRef<number | null>(null);
+  const sessionDebateIdRef = useRef(sessionDebateId);
+  /** STOP 전송 후 DEBATE_END·ERROR 외 서버 메시지 무시 */
+  const receiveBlockedRef = useRef(false);
+
+  useEffect(() => {
+    sessionDebateIdRef.current = sessionDebateId;
+  }, [sessionDebateId]);
 
   useEffect(() => {
     callbacksRef.current = { onMessage, onReady, onEnded, onError };
@@ -54,6 +72,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     switch (message.type) {
       case "DEBATE_START": {
+        debateIdRef.current = message.debateId;
         setDebateId(message.debateId);
         setLastError(null);
         setStatus("recording");
@@ -85,6 +104,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const connect = useCallback(() => {
     connectionRef.current?.close();
 
+    receiveBlockedRef.current = false;
+    debateIdRef.current = null;
     setStatus("connecting");
     setDebateId(null);
     setLastError(null);
@@ -96,9 +117,17 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       },
       onMessage: raw => {
         const parsed = parseSttWebSocketMessage(raw);
-        if (parsed) {
-          handleServerMessage(parsed);
+        if (!parsed) {
+          return;
         }
+        if (
+          receiveBlockedRef.current &&
+          parsed.type !== "DEBATE_END" &&
+          parsed.type !== "ERROR"
+        ) {
+          return;
+        }
+        handleServerMessage(parsed);
       },
       onError: () => {
         if (connectionRef.current) {
@@ -118,23 +147,32 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const disconnect = useCallback(() => {
     connectionRef.current?.close();
     connectionRef.current = null;
+    receiveBlockedRef.current = false;
+    debateIdRef.current = null;
     setStatus("idle");
     setDebateId(null);
   }, []);
 
   const stopDebate = useCallback(() => {
-    const activeDebateId = debateId;
     const connection = connectionRef.current;
-    if (activeDebateId == null || !connection) {
+    if (!connection) {
       return;
     }
+
+    const activeDebateId =
+      debateIdRef.current ?? parseNumericDebateId(sessionDebateIdRef.current);
+    if (activeDebateId == null) {
+      return;
+    }
+
+    receiveBlockedRef.current = true;
     setStatus("stopping");
     connection.sendStop(activeDebateId);
-  }, [debateId]);
+  }, []);
 
   const sendPcm = useCallback(
     (buffer: ArrayBuffer) => {
-      if (status !== "recording") {
+      if (status !== "recording" || receiveBlockedRef.current) {
         return;
       }
       connectionRef.current?.sendPcm(buffer);

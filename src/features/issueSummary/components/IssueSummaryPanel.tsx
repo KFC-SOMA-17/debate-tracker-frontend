@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useMatch } from "react-router-dom";
 import { DEBATE_SESSION_MATCH } from "@/app/router";
 import type { DebateSessionPhase } from "@/app/layouts/DebateSessionLayoutContext";
@@ -65,20 +65,18 @@ export function IssueSummaryPanel({ phase, className }: IssueSummaryPanelProps) 
     resetWhenDisabled: phase === "idle",
   });
 
-  const [activeAgendaId, setActiveAgendaId] = useState<string | null>(null);
+  const agendaIds = useMemo(() => agendas.map(agenda => String(agenda.agendaId)), [agendas]);
+  const [selectedAgendaId, setSelectedAgendaId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (agendas.length === 0) {
-      setActiveAgendaId(null);
-      return;
+  const activeAgendaId = useMemo(() => {
+    if (agendaIds.length === 0) {
+      return null;
     }
-
-    const ids = agendas.map(agenda => String(agenda.agendaId));
-    if (activeAgendaId != null && ids.includes(activeAgendaId)) {
-      return;
+    if (selectedAgendaId != null && agendaIds.includes(selectedAgendaId)) {
+      return selectedAgendaId;
     }
-    setActiveAgendaId(ids[0] ?? null);
-  }, [agendas, activeAgendaId]);
+    return agendaIds[0] ?? null;
+  }, [agendaIds, selectedAgendaId]);
 
   const activeAgenda = useMemo(() => {
     if (activeAgendaId == null) {
@@ -111,7 +109,7 @@ export function IssueSummaryPanel({ phase, className }: IssueSummaryPanelProps) 
         <AgendaTabsSection
           agendas={agendas}
           activeId={activeAgendaId}
-          onActiveIdChange={setActiveAgendaId}
+          onActiveIdChange={setSelectedAgendaId}
         />
       ) : null}
 

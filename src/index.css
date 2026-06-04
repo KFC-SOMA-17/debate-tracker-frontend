@@ -89,6 +89,13 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     font-family: var(--font-body);
     color: var(--color-text-primary);
@@ -233,5 +240,15 @@
   .split-panel-handle:focus-visible {
     outline: 2px solid var(--color-accent-primary);
     outline-offset: 2px;
+  }
+
+  /** 패널 내부 스크롤 — 스크롤은 유지, 스크롤바만 숨김 */
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
   }
 }

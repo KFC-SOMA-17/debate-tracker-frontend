@@ -29,9 +29,13 @@ const PANEL_CONFIG = {
   },
 } as const;
 
+function resolveEmptyContentVariant(variant: MainDashboardPanelVariant): "idle" | "active" {
+  return variant === "idle" ? "idle" : "active";
+}
+
 export function MainDashboardPanelIdleEmpty({ panel, variant = "idle", className }: MainDashboardPanelIdleEmptyProps) {
   const config = PANEL_CONFIG[panel];
-  const { title, description } = config[variant];
+  const { title, description } = config[resolveEmptyContentVariant(variant)];
   const Icon = config.icon;
 
   return (

@@ -1,5 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import type { RecordingStatus } from "@/features/audioCapture/types/audioCapture";
+import type { SttConnectionStatus } from "@/features/transcript/hooks/useSttWebSocket";
+import type { SttErrorData, TranscriptionSegment } from "@/features/transcript/types/sttMessages";
 
 export type DebateSessionPhase = "idle" | "active" | "ended";
 
@@ -10,6 +12,9 @@ export type DebateSessionLayoutContextValue = {
   elapsedLabel?: string;
   /** 토론 진행 중 마이크·캡처 상태 (헤더 녹음 배지) */
   recordingStatus: RecordingStatus;
+  transcriptSegments: TranscriptionSegment[];
+  sttStatus: SttConnectionStatus;
+  lastSttError: SttErrorData | null;
   openStartDebateModal: () => void;
   openEndDebateModal: () => void;
 };

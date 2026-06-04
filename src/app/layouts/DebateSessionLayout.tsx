@@ -1,5 +1,4 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { useAudioCapture } from "@/features/audioCapture/hooks/useAudioCapture";
 import { EndDebateConfirmModal } from "@/features/mainDashboard/components/EndDebateConfirmModal";
 import { StartDebateModal } from "@/features/mainDashboard/components/StartDebateModal";
 import { DEBATE_ROUTES } from "@/app/router";
@@ -16,6 +15,10 @@ export function DebateSessionLayout() {
     phase,
     debateTopic,
     elapsedLabel,
+    recordingStatus,
+    transcriptSegments,
+    sttStatus,
+    lastSttError,
     isStartModalOpen,
     setIsStartModalOpen,
     isEndModalOpen,
@@ -25,8 +28,6 @@ export function DebateSessionLayout() {
     confirmStartDebate,
     confirmEndDebate,
   } = useDebateSessionLayoutState();
-
-  const { recordingStatus } = useAudioCapture({ enabled: phase === "active" });
 
   const handleNavigate = (navId: string) => {
     if (navId === DEBATE_NAV_IDS.mainDashboard) {
@@ -41,11 +42,14 @@ export function DebateSessionLayout() {
         debateTopic,
         elapsedLabel,
         recordingStatus,
+        transcriptSegments,
+        sttStatus,
+        lastSttError,
         openStartDebateModal,
         openEndDebateModal,
       }}
     >
-      <div className="flex min-h-screen flex-col bg-bg-subtle">
+      <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-bg-subtle">
         <AppHeader brand={<HeaderBrand />} trailing={<DebateSessionHeaderTrailing />} />
         <Navigation
           items={[...DEBATE_NAV_ITEMS(phase)]}

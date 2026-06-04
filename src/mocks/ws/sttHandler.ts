@@ -4,6 +4,7 @@ import { getCurrentMockDebateNumericId } from "../fixtures/mockDebateStore";
 import {
   createMockSegmentId,
   MOCK_TRANSCRIPT_TEMPLATES,
+  toDraftMockContent,
   toRefinedSegment,
 } from "../fixtures/transcriptScenario";
 
@@ -75,6 +76,7 @@ export const sttWebSocketHandlers = [
         const segment: TranscriptionSegment = {
           id: createMockSegmentId(segmentSequence),
           ...template,
+          content: toDraftMockContent(template.content),
         };
         segmentSequence += 1;
         segmentsById.set(segment.id, segment);

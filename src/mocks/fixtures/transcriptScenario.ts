@@ -157,12 +157,26 @@ export function createMockSegmentId(sequence: number): string {
   return `${SNOWFLAKE_BASE}${String(sequence).padStart(4, "0")}`;
 }
 
+/** MSW TRANSCRIPTION용: STT 초안(띄어쓰기·문장부호 미보정) */
+export function toDraftMockContent(content: string): string {
+  return content
+    .replace(/인공지능/g, "인공 지능")
+    .replace(/([다요]다)\./g, "$1")
+    .replace(/습니다\./g, "습니다")
+    .replace(/합니다\./g, "합니다")
+    .replace(/입니다\./g, "입니다")
+    .trim();
+}
+
+/** MSW REFINED용: 초안 대비 문장부호·띄어쓰기 보정 */
 export function refineMockContent(content: string): string {
-  const trimmed = content.trim();
-  if (/[.!?]$/.test(trimmed)) {
-    return trimmed;
+  let text = content.trim().replace(/\s{2,}/g, " ");
+  text = text.replace(/인공\s+지능/g, "인공지능");
+  text = text.replace(/(입니다|습니다|합니다)(?![.!?])/g, "$1.");
+  if (!/[.!?]$/.test(text)) {
+    text += ".";
   }
-  return `${trimmed}.`;
+  return text;
 }
 
 export function toRefinedSegment(segment: TranscriptionSegment): TranscriptionSegment {

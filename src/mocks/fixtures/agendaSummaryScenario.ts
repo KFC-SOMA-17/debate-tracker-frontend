@@ -65,18 +65,18 @@ function creativitySubjectivityClaimsStage3(): Claim[] {
       "PROS",
       T.s30,
       [
-        evidence(3001, "카메라와 편집 도구의 초기 창작성을 둘러싼 논쟁", "EXAMPLE", T.s30),
-        evidence(3002, "창작 과정에서 인간의 선택과 수정이 결과물의 방향을 결정", "QUOTATION", T.s30),
+        evidence(3001, "카메라·편집 도구 도입 초기의 창작성 논쟁", "EXAMPLE", T.s30),
+        evidence(3002, "인간 선택·수정에 따른 결과물 방향 결정", "QUOTATION", T.s30),
       ],
     ),
     claim(
       2002,
-      "AI 결과물은 인간 창작과 동일하지 않음",
+      "AI 결과물과 인간 창작의 비동일성",
       "CONS",
       T.s30,
       [
-        evidence(3003, "생성 과정의 세부 판단은 모델 내부에서 자동화된다", "STATISTICS", T.s30),
-        evidence(3004, "유사한 프롬프트에서도 예측하기 어려운 결과가 나올 수 있다", "EXAMPLE", T.s30),
+        evidence(3003, "모델 내부에서의 세부 판단 자동화", "STATISTICS", T.s30),
+        evidence(3004, "유사 프롬프트 대비 결과 예측 난이도", "EXAMPLE", T.s30),
       ],
     ),
   ];
@@ -86,22 +86,22 @@ function creativitySubjectivityClaimsStage5(): Claim[] {
   return [
     claim(
       2001,
-      "AI는 인간 의도를 확장하는 창작 도구이다",
+      "AI는 인간 의도를 확장하는 창작 도구",
       "PROS",
       T.s50,
       [
-        evidence(3001, "카메라와 편집 도구의 초기 창작성을 둘러싼 논쟁", "EXAMPLE", T.s50),
-        evidence(3002, "창작 과정에서 인간의 선택과 수정이 결과물의 방향을 결정한다", "QUOTATION", T.s50),
+        evidence(3001, "카메라·편집 도구 도입 초기의 창작성 논쟁", "EXAMPLE", T.s50),
+        evidence(3002, "인간 선택·수정에 따른 결과물 방향 결정", "QUOTATION", T.s50),
       ],
     ),
     claim(
       2002,
-      "AI 결과물은 인간 창작과 동일하지 않다",
+      "AI 결과물과 인간 창작의 비동일성",
       "CONS",
       T.s50,
       [
-        evidence(3003, "생성 과정의 세부 판단은 모델 내부에서 자동화되는 경우가 많다", "STATISTICS", T.s50),
-        evidence(3004, "유사한 프롬프트에서도 예측하기 어려운 결과가 생성될 가능성이 있다", "EXAMPLE", T.s50),
+        evidence(3003, "모델 내부에서의 세부 판단 자동화", "STATISTICS", T.s50),
+        evidence(3004, "유사 프롬프트 대비 결과 변동성", "EXAMPLE", T.s50),
       ],
     ),
   ];
@@ -111,13 +111,13 @@ function copyrightAgendaStage5(): Agenda {
   return agenda(1002, "저작권과 학습 데이터", T.s50, [
     claim(
       2005,
-      "학습 데이터 사용에는 투명한 출처 공개가 필요하다",
+      "학습 데이터 사용 시 투명한 출처 공개 필요",
       "PROS",
       T.s50,
       [
         evidence(
           3005,
-          "미공개 학습 데이터를 둘러싼 소송·분쟁이 여러 플랫폼에서 제기되었다",
+          "미공개 학습 데이터 관련 소송·분쟁의 다수 플랫폼 제기",
           "EXAMPLE",
           T.s50,
         ),
@@ -125,10 +125,10 @@ function copyrightAgendaStage5(): Agenda {
     ),
     claim(
       2006,
-      "기술 발전을 위해 합리적인 학습 데이터 예외를 인정해야 한다",
+      "기술 발전을 위한 합리적 학습 데이터 예외 인정",
       "CONS",
       T.s50,
-      [evidence(3006, "과도한 규제는 모델 개발·배포 비용을 크게 늘릴 수 있다", "STATISTICS", T.s50)],
+      [evidence(3006, "과도한 규제에 따른 모델 개발·배포 비용 증가", "STATISTICS", T.s50)],
     ),
   ]);
 }
@@ -142,10 +142,10 @@ function buildStageAgendas(): Agenda[][] {
     ...stage5Claims,
     claim(
       2003,
-      "결과 선택과 수정 과정도 창작 행위이다",
+      "결과 선택·수정 과정의 창작 행위성",
       "PROS",
       T.s60,
-      [evidence(3007, "프롬프트 수정과 결과 선별은 사용자의 의도를 반영한다", "EXAMPLE", T.s60)],
+      [evidence(3007, "프롬프트 수정·결과 선별에 따른 사용자 의도 반영", "EXAMPLE", T.s60)],
     ),
   ];
 
@@ -159,7 +159,7 @@ function buildStageAgendas(): Agenda[][] {
           "AI는 인간 의도를 확장하는 창작 도구",
           "PROS",
           T.s20,
-          [evidence(3001, "카메라·편집 도구 도입 초기에도 창작성 논쟁이 있었다", "EXAMPLE", T.s20)],
+          [evidence(3001, "카메라·편집 도구 도입 초기의 창작성 논쟁", "EXAMPLE", T.s20)],
         ),
       ]),
     ],
@@ -169,17 +169,17 @@ function buildStageAgendas(): Agenda[][] {
       agenda(1002, "저작권과 학습 데이터", T.s40, [
         claim(
           2005,
-          "학습 데이터 사용에는 투명한 출처 공개가 필요하다",
+          "학습 데이터 사용 시 투명한 출처 공개 필요",
           "PROS",
           T.s40,
-          [evidence(3005, "미공개 학습 데이터 논란이 다수 플랫폼에서 제기됨", "EXAMPLE", T.s40)],
+          [evidence(3005, "미공개 학습 데이터 관련 플랫폼 논란", "EXAMPLE", T.s40)],
         ),
         claim(
           2006,
-          "기술 발전을 위해 학습 데이터 예외를 인정해야 한다",
+          "기술 발전을 위한 학습 데이터 예외 인정",
           "CONS",
           T.s40,
-          [evidence(3006, "과도한 규제는 모델 개발 비용을 크게 늘린다", "STATISTICS", T.s40)],
+          [evidence(3006, "과도한 규제에 따른 모델 개발 비용 증가", "STATISTICS", T.s40)],
         ),
       ]),
     ],
@@ -191,20 +191,20 @@ function buildStageAgendas(): Agenda[][] {
       agenda(1003, "창작 산업 영향", T.s70, [
         claim(
           2007,
-          "생성형 AI는 창작자의 새로운 협업 파트너가 될 수 있다",
+          "생성형 AI의 창작자 협업 파트너 가능성",
           "PROS",
           T.s70,
-          [evidence(3008, "일부 스튜디오는 AI 보조 워크플로로 제작 기간을 단축했다", "EXAMPLE", T.s70)],
+          [evidence(3008, "AI 보조 워크플로를 통한 스튜디오 제작 기간 단축 사례", "EXAMPLE", T.s70)],
         ),
         claim(
           2008,
-          "저작권·보상 구조가 불명확해 산업 전반의 불안이 커지고 있다",
+          "저작권·보상 구조 불명확성에 따른 산업 불안",
           "CONS",
           T.s80,
           [
             evidence(
               3009,
-              "저작자의 의도와 산출물 사이의 직접성이 약화될 수 있다",
+              "저작자 의도와 산출물 간 직접성 약화",
               "QUOTATION",
               T.s80,
             ),

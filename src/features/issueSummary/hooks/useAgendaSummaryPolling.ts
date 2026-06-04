@@ -3,6 +3,7 @@ import { useEffect, useMemo, useReducer } from "react";
 import type { DebateSessionPhase } from "@/app/layouts/DebateSessionLayoutContext";
 import { ApiError } from "@/shared/api/errors";
 import { fetchDebateAgendas } from "../api/issueSummaryApi";
+import { getLatestAgendaModifiedAt } from "../lib/formatAgendaSummaryUpdatedAt";
 import { agendaSummaryReducer, selectOrderedAgendas } from "../lib/agendaSummaryMerge";
 import type { Agenda } from "../types/agendaSummary";
 import { initialAgendaSummaryState } from "../types/agendaSummaryState";
@@ -20,6 +21,8 @@ export type UseAgendaSummaryPollingOptions = {
 
 export type UseAgendaSummaryPollingResult = {
   agendas: Agenda[];
+  /** agendas·claims·evidences 중 가장 최근 modifiedAt */
+  lastUpdatedAt: string | null;
   status: AgendaSummaryPollingStatus;
   error: ApiError | null;
   refetch: () => void;
@@ -78,6 +81,7 @@ export function useAgendaSummaryPolling({
   }, [pollingEnabled, resetWhenDisabled]);
 
   const agendas = useMemo(() => selectOrderedAgendas(record), [record]);
+  const lastUpdatedAt = useMemo(() => getLatestAgendaModifiedAt(agendas), [agendas]);
 
   const error = query.error instanceof ApiError ? query.error : null;
 
@@ -85,6 +89,7 @@ export function useAgendaSummaryPolling({
 
   return {
     agendas,
+    lastUpdatedAt,
     status,
     error,
     refetch: () => {

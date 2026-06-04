@@ -58,6 +58,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const sessionDebateIdRef = useRef(sessionDebateId);
   /** STOP 전송 후 DEBATE_END·ERROR 외 서버 메시지 무시 */
   const receiveBlockedRef = useRef(false);
+  const sessionEndNotifiedRef = useRef(false);
+  const stopRequestedRef = useRef(false);
 
   useEffect(() => {
     sessionDebateIdRef.current = sessionDebateId;
@@ -67,11 +69,24 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     callbacksRef.current = { onMessage, onReady, onEnded, onError };
   }, [onMessage, onReady, onEnded, onError]);
 
+  const notifySessionEnded = useCallback(() => {
+    if (sessionEndNotifiedRef.current) {
+      return;
+    }
+    sessionEndNotifiedRef.current = true;
+    stopRequestedRef.current = false;
+    receiveBlockedRef.current = false;
+    setStatus("ended");
+    callbacksRef.current.onEnded?.();
+  }, []);
+
   const handleServerMessage = useCallback((message: SttWebSocketMessage) => {
     callbacksRef.current.onMessage?.(message);
 
     switch (message.type) {
       case "DEBATE_START": {
+        sessionEndNotifiedRef.current = false;
+        stopRequestedRef.current = false;
         debateIdRef.current = message.debateId;
         setDebateId(message.debateId);
         setLastError(null);
@@ -83,8 +98,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
         break;
       }
       case "DEBATE_END": {
-        setStatus("ended");
-        callbacksRef.current.onEnded?.();
+        notifySessionEnded();
         connectionRef.current?.close();
         connectionRef.current = null;
         break;
@@ -99,12 +113,14 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       default:
         break;
     }
-  }, []);
+  }, [notifySessionEnded]);
 
   const connect = useCallback(() => {
     connectionRef.current?.close();
 
     receiveBlockedRef.current = false;
+    sessionEndNotifiedRef.current = false;
+    stopRequestedRef.current = false;
     debateIdRef.current = null;
     setStatus("connecting");
     setDebateId(null);
@@ -136,20 +152,25 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       },
       onClose: () => {
         connectionRef.current = null;
+        if (stopRequestedRef.current && !sessionEndNotifiedRef.current) {
+          notifySessionEnded();
+          return;
+        }
         setStatus(current => (current === "ended" || current === "error" ? current : "idle"));
       },
     });
 
     connectionRef.current = connection;
     connection.connect();
-  }, [handleServerMessage]);
+  }, [handleServerMessage, notifySessionEnded]);
 
   const disconnect = useCallback(() => {
     connectionRef.current?.close();
     connectionRef.current = null;
     receiveBlockedRef.current = false;
+    stopRequestedRef.current = false;
     debateIdRef.current = null;
-    setStatus("idle");
+    setStatus(current => (current === "ended" || current === "error" ? current : "idle"));
     setDebateId(null);
   }, []);
 
@@ -162,12 +183,30 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     const activeDebateId =
       debateIdRef.current ?? parseNumericDebateId(sessionDebateIdRef.current);
     if (activeDebateId == null) {
+      console.warn("[useSttWebSocket] STOP skipped: debateId unavailable");
       return;
     }
 
     receiveBlockedRef.current = true;
+    stopRequestedRef.current = true;
     setStatus("stopping");
-    connection.sendStop(activeDebateId);
+
+    const sendStopOnce = () => {
+      if (connection.getReadyState() === WebSocket.OPEN) {
+        connection.sendStop(activeDebateId);
+        return true;
+      }
+      return false;
+    };
+
+    if (!sendStopOnce()) {
+      const retryTimer = window.setInterval(() => {
+        if (sendStopOnce()) {
+          window.clearInterval(retryTimer);
+        }
+      }, 100);
+      window.setTimeout(() => window.clearInterval(retryTimer), 5_000);
+    }
   }, []);
 
   const sendPcm = useCallback(
@@ -179,6 +218,20 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     },
     [status],
   );
+
+  useEffect(() => {
+    if (status !== "stopping") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      notifySessionEnded();
+      connectionRef.current?.close();
+      connectionRef.current = null;
+    }, 5_000);
+
+    return () => window.clearTimeout(timer);
+  }, [status, notifySessionEnded]);
 
   useEffect(() => {
     return () => {

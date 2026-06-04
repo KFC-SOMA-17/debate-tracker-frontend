@@ -66,13 +66,15 @@ export function useTranscriptSession({
     }
   }, []);
 
+  const handleSessionEndedFromWs = useCallback(() => {
+    flushTranscriptEventLogDownload();
+    onSessionEndedRef.current?.();
+  }, []);
+
   const { status, lastError, canSendAudio, connect, disconnect, stopDebate, sendPcm } = useSttWebSocket({
     sessionDebateId,
     onMessage: handleMessage,
-    onEnded: () => {
-      flushTranscriptEventLogDownload();
-      onSessionEndedRef.current?.();
-    },
+    onEnded: handleSessionEndedFromWs,
     onError: () => {
       // 상태는 useSttWebSocket이 error로 관리
     },
@@ -80,10 +82,6 @@ export function useTranscriptSession({
 
   useEffect(() => {
     if (!enabled) {
-      disconnect();
-      if (resetWhenDisabled) {
-        dispatch({ type: "CLEAR" });
-      }
       return;
     }
 
@@ -91,7 +89,14 @@ export function useTranscriptSession({
     return () => {
       disconnect();
     };
-  }, [enabled, resetWhenDisabled, connect, disconnect]);
+  }, [enabled, sessionDebateId, connect, disconnect]);
+
+  useEffect(() => {
+    if (enabled || !resetWhenDisabled) {
+      return;
+    }
+    dispatch({ type: "CLEAR" });
+  }, [enabled, resetWhenDisabled]);
 
   const segments = useMemo(() => selectOrderedSegments(record), [record]);
 

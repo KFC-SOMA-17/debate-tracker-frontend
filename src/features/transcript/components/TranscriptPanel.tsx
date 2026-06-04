@@ -61,7 +61,7 @@ export function TranscriptPanel({ phase, segments, sttStatus, lastError, classNa
 
   return (
     <div className={cn("flex h-full min-h-0 flex-1 flex-col overflow-hidden", className)}>
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-default px-4 py-2">
+      <div className="flex h-[52px] shrink-0 items-center justify-between gap-2 border-b border-border-default px-6">
         <h2 className="text-sm font-medium text-text-primary">실시간 속기록</h2>
         {badge ? (
           <Badge variant="status" tone={badge.tone}>

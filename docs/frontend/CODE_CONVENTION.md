@@ -60,6 +60,38 @@ src
 - feature 종속 hook은 feature 내부에 위치
 - 범용 hook만 공용 hooks에 둔다
 
+### useEffect 작성
+
+- Hook 호출은 조건문·반복문 밖에서만 한다 (Rules of Hooks).
+- effect 본문에서 `if/else`로 setup·teardown 경로를 나누지 않는다. 실행마다 다른 동작이 들어가면 cleanup과의 대칭이 깨지기 쉽다.
+- 조건이 맞지 않을 때는 early return으로 setup/cleanup을 생략한다.
+- 구독·리셋·ref 동기화처럼 관심사가 다르면 effect를 분리한다.
+- cleanup은 effect 본문의 setup과 항상 1:1로 대응해야 한다.
+
+```tsx
+// ✅ 가드 + 대칭 cleanup
+useEffect(() => {
+  if (!active) {
+    return;
+  }
+
+  const sub = subscribe();
+  return () => sub.unsubscribe();
+}, [active]);
+
+// ❌ 분기마다 다른 동작 + cleanup은 항상 동일
+useEffect(() => {
+  if (enabled) {
+    start();
+  } else {
+    stop();
+    reset();
+  }
+
+  return () => stop();
+}, [enabled]);
+```
+
 ## 8. 스타일링 규칙
 
 - Tailwind CSS를 기본 스타일링 방식으로 사용한다.
@@ -79,16 +111,16 @@ src
 
 ### 소스 파일 (`src/**`)
 
-| 대상 | 케이스 | 확장자 | 예시 |
-|------|--------|--------|------|
-| React 컴포넌트 | **PascalCase** | `.tsx` | `Button.tsx`, `ModalRoot.tsx`, `ToastProvider.tsx` |
-| Hook | **camelCase**, `use` 접두사 | `.ts` / `.tsx` | `useToast.ts`, `useModalEffects.ts` |
-| Context + 전용 hook (한 쌍) | **camelCase** | `.ts` | `useModalContext.ts` — `createContext`와 hook을 **같은 파일**에 둔다 (`ModalContext.ts` ❌) |
-| 컴포넌트 묶음의 타입·상수 | **아래 §10.1** | `.ts` | `Toast.types.ts`, `constants.ts` |
-| 유틸·순수 함수 | **camelCase** | `.ts` | `cn.ts`, `formatDuration.ts` |
-| 배럴 export | `index` | `.ts` | `index.ts` |
-| Storybook | 컴포넌트명 + `.stories` | `.tsx` | `Button.stories.tsx` |
-| 테스트 | 대상명 + `.test` | `.ts` / `.tsx` | `useToast.test.ts` |
+| 대상                        | 케이스                      | 확장자         | 예시                                                                                        |
+| --------------------------- | --------------------------- | -------------- | ------------------------------------------------------------------------------------------- |
+| React 컴포넌트              | **PascalCase**              | `.tsx`         | `Button.tsx`, `ModalRoot.tsx`, `ToastProvider.tsx`                                          |
+| Hook                        | **camelCase**, `use` 접두사 | `.ts` / `.tsx` | `useToast.ts`, `useModalEffects.ts`                                                         |
+| Context + 전용 hook (한 쌍) | **camelCase**               | `.ts`          | `useModalContext.ts` — `createContext`와 hook을 **같은 파일**에 둔다 (`ModalContext.ts` ❌) |
+| 컴포넌트 묶음의 타입·상수   | **아래 §10.1**              | `.ts`          | `Toast.types.ts`, `constants.ts`                                                            |
+| 유틸·순수 함수              | **camelCase**               | `.ts`          | `cn.ts`, `formatDuration.ts`                                                                |
+| 배럴 export                 | `index`                     | `.ts`          | `index.ts`                                                                                  |
+| Storybook                   | 컴포넌트명 + `.stories`     | `.tsx`         | `Button.stories.tsx`                                                                        |
+| 테스트                      | 대상명 + `.test`            | `.ts` / `.tsx` | `useToast.test.ts`                                                                          |
 
 ### 10.1 컴포넌트 폴더 안의 타입·상수 파일
 

@@ -74,6 +74,7 @@
 - 프론트엔드 코드 컨벤션 문서
 - 에러 정책 문서
 - API 명세서(후속 작성)
+- [클라이언트 음성 입력 및 전처리](CLIENT_AUDIO_CAPTURE.md) — Web Audio API, PCM16, 다운샘플링, chunk 전송 개념
 
 ---
 

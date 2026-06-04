@@ -1,4 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
+import { useAudioCapture } from "@/features/audioCapture/hooks/useAudioCapture";
 import { EndDebateConfirmModal } from "@/features/mainDashboard/components/EndDebateConfirmModal";
 import { StartDebateModal } from "@/features/mainDashboard/components/StartDebateModal";
 import { DEBATE_ROUTES } from "@/app/router";
@@ -25,6 +26,8 @@ export function DebateSessionLayout() {
     confirmEndDebate,
   } = useDebateSessionLayoutState();
 
+  const { recordingStatus } = useAudioCapture({ enabled: phase === "active" });
+
   const handleNavigate = (navId: string) => {
     if (navId === DEBATE_NAV_IDS.mainDashboard) {
       navigate(DEBATE_ROUTES.home);
@@ -37,6 +40,7 @@ export function DebateSessionLayout() {
         phase,
         debateTopic,
         elapsedLabel,
+        recordingStatus,
         openStartDebateModal,
         openEndDebateModal,
       }}

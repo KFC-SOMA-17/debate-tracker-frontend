@@ -1,10 +1,17 @@
+import { getRecordingStatusBadgePresentation } from "@/features/audioCapture/lib/recordingStatusBadge";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { ClockIcon, RadioIcon } from "@/shared/ui/icons";
 import { useDebateSessionLayout } from "./DebateSessionLayoutContext";
 
 export function DebateSessionHeaderTrailing() {
-  const { phase, elapsedLabel = "00:00", openStartDebateModal, openEndDebateModal } = useDebateSessionLayout();
+  const {
+    phase,
+    elapsedLabel = "00:00",
+    recordingStatus,
+    openStartDebateModal,
+    openEndDebateModal,
+  } = useDebateSessionLayout();
 
   if (phase === "idle") {
     return (
@@ -20,6 +27,8 @@ export function DebateSessionHeaderTrailing() {
   }
 
   if (phase === "active") {
+    const recordingBadge = getRecordingStatusBadgePresentation(recordingStatus);
+
     return (
       <>
         <Badge variant="status" tone="info">
@@ -28,8 +37,12 @@ export function DebateSessionHeaderTrailing() {
         <Badge variant="status" tone="muted" leftIcon={<ClockIcon className="size-3.5" aria-hidden />}>
           {elapsedLabel}
         </Badge>
-        <Badge variant="status" tone="success" leftIcon={<RadioIcon className="size-3.5" aria-hidden />}>
-          녹음 정상
+        <Badge
+          variant="status"
+          tone={recordingBadge.tone}
+          leftIcon={<RadioIcon className="size-3.5" aria-hidden />}
+        >
+          {recordingBadge.label}
         </Badge>
         <Button type="button" variant="danger" size="md" onClick={openEndDebateModal}>
           토론 종료

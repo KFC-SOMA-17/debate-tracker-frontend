@@ -3,7 +3,7 @@ import { Group, Separator, useGroupRef } from "react-resizable-panels";
 import { useDebateSessionLayout } from "@/app/layouts/DebateSessionLayoutContext";
 import { useUiStore } from "@/shared/store/uiStore";
 import { cn } from "@/shared/lib/cn";
-import { MainDashboardPanelIdleEmpty } from "./MainDashboardPanelIdleEmpty";
+import { MainDashboardPanelIdleEmpty, type MainDashboardPanelVariant } from "./MainDashboardPanelIdleEmpty";
 import {
   createDefaultSplitLayout,
   getDefaultSplitRatio,
@@ -18,11 +18,18 @@ export type MainDashboardSplitViewProps = {
   className?: string;
 };
 
+function panelVariant(phase: "idle" | "active" | "ended"): MainDashboardPanelVariant {
+  if (phase === "idle") {
+    return "idle";
+  }
+  return "active";
+}
+
 export function MainDashboardSplitView({ className }: MainDashboardSplitViewProps) {
   const { phase } = useDebateSessionLayout();
   const groupRef = useGroupRef();
   const setSplitRatio = useUiStore(state => state.setSplitRatio);
-  const showIdleEmpty = phase === "idle";
+  const variant = panelVariant(phase);
 
   const applyDefaultLayout = useCallback(() => {
     groupRef.current?.setLayout(createDefaultSplitLayout());
@@ -51,7 +58,7 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         expandDirection="right"
         onRestoreLayout={applyDefaultLayout}
       >
-        {showIdleEmpty ? <MainDashboardPanelIdleEmpty panel="transcript" /> : null}
+        <MainDashboardPanelIdleEmpty panel="transcript" variant={variant} />
       </SplitPanelShell>
       <Separator className="split-panel-handle" disableDoubleClick onDoubleClick={applyDefaultLayout}>
         <SplitResizeGrip />
@@ -64,7 +71,7 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         expandDirection="left"
         onRestoreLayout={applyDefaultLayout}
       >
-        {showIdleEmpty ? <MainDashboardPanelIdleEmpty panel="issueSummary" /> : null}
+        <MainDashboardPanelIdleEmpty panel="issueSummary" variant={variant} />
       </SplitPanelShell>
     </Group>
   );

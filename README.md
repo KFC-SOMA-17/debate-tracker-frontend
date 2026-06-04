@@ -42,6 +42,7 @@ pnpm test:e2e
 
 - [요구사항](docs/product/REQUIREMENTS.md)
 - [화면 명세](docs/product/SCREEN_SPEC.md)
+- [클라이언트 음성 입력 및 전처리](docs/product/CLIENT_AUDIO_CAPTURE.md)
 
 ### Design
 

@@ -39,7 +39,7 @@ export function MainDashboardPanelIdleEmpty({ panel, variant = "idle", className
   const Icon = config.icon;
 
   return (
-    <div className={cn("flex min-h-0 flex-1 items-center justify-center overflow-auto p-6 select-none", className)}>
+    <div className={cn("flex h-full min-h-0 flex-1 items-center justify-center overflow-hidden p-6 select-none", className)}>
       <EmptyState
         className="w-full max-w-md"
         icon={<Icon className="size-12" aria-hidden />}

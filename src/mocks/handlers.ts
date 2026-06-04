@@ -1,3 +1,4 @@
-import type { HttpHandler } from "msw";
+import { debateHandlers } from "./http/debateHandlers";
+import { sttWebSocketHandlers } from "./ws/sttHandler";
 
-export const handlers: HttpHandler[] = [];
+export const handlers = [...debateHandlers, ...sttWebSocketHandlers];

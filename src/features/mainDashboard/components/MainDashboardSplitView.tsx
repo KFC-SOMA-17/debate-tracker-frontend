@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { Group, Separator, useGroupRef } from "react-resizable-panels";
 import { useDebateSessionLayout } from "@/app/layouts/DebateSessionLayoutContext";
+import { TranscriptPanel } from "@/features/transcript/components/TranscriptPanel";
 import { useUiStore } from "@/shared/store/uiStore";
 import { cn } from "@/shared/lib/cn";
 import { MainDashboardPanelIdleEmpty, type MainDashboardPanelVariant } from "./MainDashboardPanelIdleEmpty";
@@ -26,7 +27,7 @@ function panelVariant(phase: "idle" | "active" | "ended"): MainDashboardPanelVar
 }
 
 export function MainDashboardSplitView({ className }: MainDashboardSplitViewProps) {
-  const { phase } = useDebateSessionLayout();
+  const { phase, transcriptSegments, sttStatus, lastSttError } = useDebateSessionLayout();
   const groupRef = useGroupRef();
   const setSplitRatio = useUiStore(state => state.setSplitRatio);
   const variant = panelVariant(phase);
@@ -41,7 +42,7 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
       id={SPLIT_GROUP_ID}
       groupRef={groupRef}
       orientation="horizontal"
-      className={cn("flex min-h-0 min-w-0 flex-1", className)}
+      className={cn("flex h-full min-h-0 min-w-0 flex-1", className)}
       defaultLayout={createDefaultSplitLayout()}
       onLayoutChanged={layout => {
         const left = layout[SPLIT_PANEL_IDS.transcript];
@@ -58,7 +59,17 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         expandDirection="right"
         onRestoreLayout={applyDefaultLayout}
       >
-        <MainDashboardPanelIdleEmpty panel="transcript" variant={variant} />
+        {phase === "idle" ? (
+          <MainDashboardPanelIdleEmpty panel="transcript" variant={variant} className="h-full" />
+        ) : (
+          <TranscriptPanel
+            className="h-full"
+            phase={phase}
+            segments={transcriptSegments}
+            sttStatus={sttStatus}
+            lastError={lastSttError}
+          />
+        )}
       </SplitPanelShell>
       <Separator className="split-panel-handle" disableDoubleClick onDoubleClick={applyDefaultLayout}>
         <SplitResizeGrip />
@@ -71,7 +82,7 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         expandDirection="left"
         onRestoreLayout={applyDefaultLayout}
       >
-        <MainDashboardPanelIdleEmpty panel="issueSummary" variant={variant} />
+        <MainDashboardPanelIdleEmpty panel="issueSummary" variant={variant} className="h-full" />
       </SplitPanelShell>
     </Group>
   );

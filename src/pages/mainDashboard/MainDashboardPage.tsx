@@ -15,7 +15,7 @@ export function MainDashboardPage() {
       <DebateTopicBanner topic={debateTopic} />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border-default bg-bg-default p-px shadow-sm">
-        <MainDashboardSplitView className="h-full min-h-128" />
+        <MainDashboardSplitView className="min-h-0 flex-1" />
       </div>
     </div>
   );

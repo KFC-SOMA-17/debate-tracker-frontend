@@ -30,8 +30,9 @@ export function useDebateSessionLayoutState() {
     onSessionEnded: handleSessionEnded,
   });
 
+  // WS 연결·START와 병렬로 마이크를 준비해 DEBATE_START 직후 PCM 전송 가능
   const { recordingStatus } = useAudioCapture({
-    enabled: transcript.canSendAudio,
+    enabled: transcriptWsEnabled,
     onChunk: buffer => transcript.sendPcm(buffer),
   });
 

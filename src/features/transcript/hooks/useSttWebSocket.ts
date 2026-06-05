@@ -59,6 +59,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const callbacksRef = useRef({ onMessage, onReady, onEnded, onError });
   const debateIdRef = useRef<number | null>(null);
   const sessionDebateIdRef = useRef(sessionDebateId);
+  const statusRef = useRef<SttConnectionStatus>("idle");
   /** STOP 전송 후 DEBATE_END·ERROR 외 서버 메시지 무시 */
   const receiveBlockedRef = useRef(false);
   const sessionEndNotifiedRef = useRef(false);
@@ -67,6 +68,10 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   useEffect(() => {
     sessionDebateIdRef.current = sessionDebateId;
   }, [sessionDebateId]);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     callbacksRef.current = { onMessage, onReady, onEnded, onError };
@@ -94,6 +99,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
         setDebateId(message.debateId);
         setDebateStartedAt(Date.now());
         setLastError(null);
+        statusRef.current = "recording";
         setStatus("recording");
         callbacksRef.current.onReady?.(
           message.debateId,
@@ -226,15 +232,12 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     }
   }, []);
 
-  const sendPcm = useCallback(
-    (buffer: ArrayBuffer) => {
-      if (status !== "recording" || receiveBlockedRef.current) {
-        return;
-      }
-      connectionRef.current?.sendPcm(buffer);
-    },
-    [status],
-  );
+  const sendPcm = useCallback((buffer: ArrayBuffer) => {
+    if (statusRef.current !== "recording" || receiveBlockedRef.current) {
+      return;
+    }
+    connectionRef.current?.sendPcm(buffer);
+  }, []);
 
   useEffect(() => {
     if (status !== "stopping") {

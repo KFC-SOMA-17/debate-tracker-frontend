@@ -16,7 +16,7 @@ import { useSttWebSocket, type SttConnectionStatus } from "./useSttWebSocket";
 export type UseTranscriptSessionOptions = {
   /** WebSocket 연결·START 유지 여부 (active 토론 중) */
   enabled: boolean;
-  /** 라우트·REST debateId (STOP fallback) */
+  /** 라우트·REST debateId — START·STOP 제어 메시지에 포함 */
   sessionDebateId?: string;
   /** 비활성화 시 로컬 record 초기화 (idle로 복귀할 때) */
   resetWhenDisabled?: boolean;

@@ -27,8 +27,8 @@ function parseControlMessage(raw: string): ControlMessage | null {
       return null;
     }
     const record = json as Record<string, unknown>;
-    if (record.type === "START") {
-      return { type: "START" };
+    if (record.type === "START" && typeof record.debateId === "number") {
+      return { type: "START", debateId: record.debateId };
     }
     if (record.type === "STOP" && typeof record.debateId === "number") {
       return { type: "STOP", debateId: record.debateId };
@@ -104,7 +104,7 @@ export const sttWebSocketHandlers = [
       }
 
       if (control.type === "START") {
-        debateId = getCurrentMockDebateNumericId();
+        debateId = control.debateId;
         segmentsById.clear();
         segmentSequence = 0;
         clearTimers();

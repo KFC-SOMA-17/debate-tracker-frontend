@@ -17,7 +17,7 @@ export type SttConnectionStatus =
   | "error";
 
 export type UseSttWebSocketOptions = {
-  /** REST·라우트 debateId — DEBATE_START 수신 전 STOP 등 fallback */
+  /** REST·라우트 debateId — START·STOP 제어 메시지에 포함 */
   sessionDebateId?: string;
   onMessage?: (message: SttWebSocketMessage) => void;
   onReady?: (debateId: number, debateIdString: string) => void;
@@ -133,8 +133,14 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     const connection = createSttWebSocket({
       onOpen: () => {
+        const activeDebateId = parseNumericDebateId(sessionDebateIdRef.current);
+        if (activeDebateId == null) {
+          console.warn("[useSttWebSocket] START skipped: debateId unavailable");
+          setStatus("error");
+          return;
+        }
         setStatus("ready");
-        connection.sendStart();
+        connection.sendStart(activeDebateId);
       },
       onMessage: raw => {
         const parsed = parseSttWebSocketMessage(raw);

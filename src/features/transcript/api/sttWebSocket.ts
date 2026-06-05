@@ -10,7 +10,7 @@ export type SttWebSocketHandlers = {
 
 export type SttWebSocketConnection = {
   connect: () => void;
-  sendStart: () => void;
+  sendStart: (debateId: number) => void;
   sendStop: (debateId: number) => void;
   sendPcm: (buffer: ArrayBuffer) => void;
   close: () => void;
@@ -61,12 +61,12 @@ export function createSttWebSocket(handlers: SttWebSocketHandlers = {}): SttWebS
     connect() {
       ensureSocket();
     },
-    sendStart() {
+    sendStart(debateId) {
       const activeSocket = socket;
       if (!activeSocket || activeSocket.readyState !== WebSocket.OPEN) {
         return;
       }
-      sendControlMessage(activeSocket, { type: "START" });
+      sendControlMessage(activeSocket, { type: "START", debateId });
     },
     sendStop(debateId) {
       const activeSocket = socket;

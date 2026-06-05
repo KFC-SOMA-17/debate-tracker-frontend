@@ -31,6 +31,7 @@ export type SttWebSocketMessage = {
 
 export type StartControlMessage = {
   type: "START";
+  debateId: number;
 };
 
 export type StopControlMessage = {

@@ -37,6 +37,8 @@ export type UseSttWebSocketResult = {
   status: SttConnectionStatus;
   debateId: number | null;
   debateIdString: string | null;
+  /** DEBATE_START 수신 시각(ms) */
+  debateStartedAt: number | null;
   canSendAudio: boolean;
   lastError: SttErrorData | null;
   connect: () => void;
@@ -50,6 +52,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
   const [status, setStatus] = useState<SttConnectionStatus>("idle");
   const [debateId, setDebateId] = useState<number | null>(null);
+  const [debateStartedAt, setDebateStartedAt] = useState<number | null>(null);
   const [lastError, setLastError] = useState<SttErrorData | null>(null);
 
   const connectionRef = useRef<SttWebSocketConnection | null>(null);
@@ -89,6 +92,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
         stopRequestedRef.current = false;
         debateIdRef.current = message.debateId;
         setDebateId(message.debateId);
+        setDebateStartedAt(Date.now());
         setLastError(null);
         setStatus("recording");
         callbacksRef.current.onReady?.(
@@ -124,6 +128,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     debateIdRef.current = null;
     setStatus("connecting");
     setDebateId(null);
+    setDebateStartedAt(null);
     setLastError(null);
 
     const connection = createSttWebSocket({
@@ -170,7 +175,13 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     receiveBlockedRef.current = false;
     stopRequestedRef.current = false;
     debateIdRef.current = null;
-    setStatus(current => (current === "ended" || current === "error" ? current : "idle"));
+    setStatus(current => {
+      if (current !== "ended" && current !== "error") {
+        setDebateStartedAt(null);
+        return "idle";
+      }
+      return current;
+    });
     setDebateId(null);
   }, []);
 
@@ -246,6 +257,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     status,
     debateId,
     debateIdString,
+    debateStartedAt,
     canSendAudio: status === "recording",
     lastError,
     connect,

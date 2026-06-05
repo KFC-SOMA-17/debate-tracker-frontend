@@ -26,6 +26,8 @@ export type UseTranscriptSessionOptions = {
 export type UseTranscriptSessionResult = {
   segments: TranscriptionSegment[];
   sttStatus: SttConnectionStatus;
+  /** DEBATE_START 수신 시각(ms) */
+  debateStartedAt: number | null;
   lastError: SttErrorData | null;
   canSendAudio: boolean;
   sendPcm: (buffer: ArrayBuffer) => void;
@@ -71,7 +73,8 @@ export function useTranscriptSession({
     onSessionEndedRef.current?.();
   }, []);
 
-  const { status, lastError, canSendAudio, connect, disconnect, stopDebate, sendPcm } = useSttWebSocket({
+  const { status, debateStartedAt, lastError, canSendAudio, connect, disconnect, stopDebate, sendPcm } =
+    useSttWebSocket({
     sessionDebateId,
     onMessage: handleMessage,
     onEnded: handleSessionEndedFromWs,
@@ -103,6 +106,7 @@ export function useTranscriptSession({
   return {
     segments,
     sttStatus: status,
+    debateStartedAt,
     lastError,
     canSendAudio,
     sendPcm,

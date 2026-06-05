@@ -13,7 +13,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 const variantClasses: Record<BadgeVariant, string> = {
   status: "rounded-pill px-3 py-1 text-xs font-medium",
   speaker: "rounded-md px-2 py-0.5 text-xs font-medium",
-  evidence: "rounded-pill px-2.5 py-0.5 text-xs font-medium border",
+  evidence: "h-5 min-h-5 items-center justify-center rounded px-2 text-xs font-medium leading-none border",
   neutral: "rounded-pill px-2.5 py-0.5 text-xs font-medium",
 };
 

@@ -9,22 +9,8 @@ export function DebateSessionHeaderTrailing() {
     phase,
     elapsedLabel = "00:00",
     recordingStatus,
-    openStartDebateModal,
     openEndDebateModal,
   } = useDebateSessionLayout();
-
-  if (phase === "idle") {
-    return (
-      <>
-        <Badge variant="status" tone="muted" leftIcon={<ClockIcon className="size-3.5" aria-hidden />}>
-          토론 대기 중
-        </Badge>
-        <Button type="button" variant="primary" size="md" onClick={openStartDebateModal}>
-          토론 시작
-        </Button>
-      </>
-    );
-  }
 
   if (phase === "active") {
     const recordingBadge = getRecordingStatusBadgePresentation(recordingStatus);

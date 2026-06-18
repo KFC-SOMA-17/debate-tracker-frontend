@@ -1,3 +1,3 @@
 export const TRANSCRIPT_API_PATHS = {
-  sttWebSocket: "/ws/stt",
+  stompEndpoint: "/ws",
 } as const;

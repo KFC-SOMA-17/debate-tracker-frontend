@@ -1,5 +1,5 @@
 import { ws } from "msw";
-import type { ControlMessage, TranscriptionSegment } from "@/features/transcript/types/sttMessages";
+import type { TranscriptionSegment } from "@/features/transcript/types/sttMessages";
 import { getCurrentMockDebateNumericId } from "../fixtures/mockDebateStore";
 import {
   createMockSegmentId,
@@ -7,6 +7,12 @@ import {
   toDraftMockContent,
   toRefinedSegment,
 } from "../fixtures/transcriptScenario";
+import {
+  encodeStompConnected,
+  encodeStompMessage,
+  parseStompFrame,
+  type StompFrame,
+} from "./stompFrame";
 
 const DEBATE_START_DELAY_MS = 500;
 const TRANSCRIPTION_INTERVAL_MS = 1_500;
@@ -14,38 +20,45 @@ const REFINED_INTERVAL_MS = 5_000;
 const STOP_REFINED_DELAY_MS = 800;
 const DEBATE_END_DELAY_MS = 1_500;
 
-const sttWebSocketLink = ws.link(/\/ws\/stt$/);
+const stompWebSocketLink = ws.link(/\/ws$/);
 
-function sendJson(client: { send: (data: string) => void }, payload: unknown): void {
-  client.send(JSON.stringify(payload));
-}
+type ClientSubscription = {
+  id: string;
+  destination: string;
+};
 
-function parseControlMessage(raw: string): ControlMessage | null {
-  try {
-    const json: unknown = JSON.parse(raw);
-    if (typeof json !== "object" || json === null) {
-      return null;
-    }
-    const record = json as Record<string, unknown>;
-    if (record.type === "START" && typeof record.debateId === "number") {
-      return { type: "START", debateId: record.debateId };
-    }
-    if (record.type === "STOP" && typeof record.debateId === "number") {
-      return { type: "STOP", debateId: record.debateId };
-    }
-    return null;
-  } catch {
+function parseDebateIdFromAppDestination(destination: string): number | null {
+  const match = destination.match(/^\/app\/debate\/(\d+)\/(?:start|stop|audio)$/);
+  if (match == null) {
     return null;
   }
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function sendToClient(client: { send: (data: string) => void }, payload: string): void {
+  client.send(payload);
+}
+
+function broadcastMessage(
+  client: { send: (data: string) => void },
+  subscription: ClientSubscription,
+  body: unknown,
+): void {
+  sendToClient(
+    client,
+    encodeStompMessage(subscription.destination, subscription.id, JSON.stringify(body)),
+  );
 }
 
 export const sttWebSocketHandlers = [
-  sttWebSocketLink.addEventListener("connection", ({ client }) => {
+  stompWebSocketLink.addEventListener("connection", ({ client }) => {
     let debateId = getCurrentMockDebateNumericId();
     let segmentSequence = 0;
     let transcriptionTimer: ReturnType<typeof setInterval> | null = null;
     let refinedTimer: ReturnType<typeof setInterval> | null = null;
     const segmentsById = new Map<string, TranscriptionSegment>();
+    const subscriptions: ClientSubscription[] = [];
 
     const clearTimers = () => {
       if (transcriptionTimer) {
@@ -63,11 +76,16 @@ export const sttWebSocketHandlers = [
       if (segments.length === 0) {
         return;
       }
-      sendJson(client, {
+
+      const payload = {
         debateId,
         type: "REFINED_TRANSCRIPTION",
         data: { segments },
-      });
+      };
+
+      for (const subscription of subscriptions) {
+        broadcastMessage(client, subscription, payload);
+      }
     };
 
     const startTranscriptionLoop = () => {
@@ -81,11 +99,15 @@ export const sttWebSocketHandlers = [
         segmentSequence += 1;
         segmentsById.set(segment.id, segment);
 
-        sendJson(client, {
+        const payload = {
           debateId,
           type: "TRANSCRIPTION",
           data: segment,
-        });
+        };
+
+        for (const subscription of subscriptions) {
+          broadcastMessage(client, subscription, payload);
+        }
       }, TRANSCRIPTION_INTERVAL_MS);
 
       refinedTimer = setInterval(() => {
@@ -93,45 +115,102 @@ export const sttWebSocketHandlers = [
       }, REFINED_INTERVAL_MS);
     };
 
-    client.addEventListener("message", event => {
-      if (typeof event.data !== "string") {
+    const handleSend = (frame: StompFrame) => {
+      const destination = frame.headers.destination;
+      if (destination == null) {
         return;
       }
 
-      const control = parseControlMessage(event.data);
-      if (!control) {
+      const startDebateId = parseDebateIdFromAppDestination(destination);
+      if (startDebateId == null) {
         return;
       }
 
-      if (control.type === "START") {
-        debateId = control.debateId;
+      if (destination.endsWith("/start")) {
+        debateId = startDebateId;
         segmentsById.clear();
         segmentSequence = 0;
         clearTimers();
 
         setTimeout(() => {
-          sendJson(client, {
+          const payload = {
             debateId,
             type: "DEBATE_START",
             data: null,
-          });
+          };
+
+          for (const subscription of subscriptions) {
+            broadcastMessage(client, subscription, payload);
+          }
           startTranscriptionLoop();
         }, DEBATE_START_DELAY_MS);
         return;
       }
 
-      if (control.type === "STOP") {
+      if (destination.endsWith("/stop")) {
         clearTimers();
         setTimeout(() => {
           sendRefinedForRecent();
         }, STOP_REFINED_DELAY_MS);
         setTimeout(() => {
-          sendJson(client, {
-            debateId: control.debateId,
+          const payload = {
+            debateId: startDebateId,
             type: "DEBATE_END",
             data: null,
-          });
+          };
+
+          for (const subscription of subscriptions) {
+            broadcastMessage(client, subscription, payload);
+          }
         }, DEBATE_END_DELAY_MS);
+      }
+    };
+
+    client.addEventListener("message", event => {
+      const raw =
+        typeof event.data === "string"
+          ? event.data
+          : event.data instanceof ArrayBuffer
+            ? new TextDecoder().decode(event.data)
+            : null;
+
+      if (raw == null) {
+        return;
+      }
+
+      const frame = parseStompFrame(raw);
+      if (frame == null) {
+        return;
+      }
+
+      switch (frame.command) {
+        case "CONNECT":
+        case "STOMP":
+          sendToClient(client, encodeStompConnected());
+          break;
+        case "SUBSCRIBE": {
+          const id = frame.headers.id;
+          const destination = frame.headers.destination;
+          if (id && destination) {
+            subscriptions.push({ id, destination });
+          }
+          break;
+        }
+        case "UNSUBSCRIBE": {
+          const id = frame.headers.id;
+          if (id) {
+            const index = subscriptions.findIndex(subscription => subscription.id === id);
+            if (index >= 0) {
+              subscriptions.splice(index, 1);
+            }
+          }
+          break;
+        }
+        case "SEND":
+          handleSend(frame);
+          break;
+        default:
+          break;
       }
     });
 

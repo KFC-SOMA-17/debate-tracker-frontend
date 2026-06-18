@@ -39,6 +39,8 @@ function connectionBadge(sttStatus: SttConnectionStatus, phase: DebateSessionPha
     case "connecting":
     case "ready":
       return { label: "STT 연결 중", tone: "info" };
+    case "reconnecting":
+      return { label: "재연결 중", tone: "warning" };
     case "recording":
       return { label: "실시간 수신", tone: "success" };
     case "stopping":
@@ -53,8 +55,10 @@ function connectionBadge(sttStatus: SttConnectionStatus, phase: DebateSessionPha
 export function TranscriptPanel({ phase, segments, sttStatus, lastError, className }: TranscriptPanelProps) {
   const badge = connectionBadge(sttStatus, phase);
   const isConnecting = sttStatus === "connecting" || sttStatus === "ready";
-  const showLoading = isConnecting && segments.length === 0;
-  const showEmpty = !showLoading && segments.length === 0 && sttStatus !== "error";
+  const isReconnecting = sttStatus === "reconnecting";
+  const showLoading = (isConnecting || isReconnecting) && segments.length === 0;
+  const showEmpty =
+    !showLoading && segments.length === 0 && sttStatus !== "error" && phase === "active";
   const showError = sttStatus === "error" && segments.length === 0;
   const showPlaceholder = showLoading || showEmpty || showError;
 
@@ -87,12 +91,19 @@ export function TranscriptPanel({ phase, segments, sttStatus, lastError, classNa
           {showPlaceholder ? (
             <PlaceholderCenter>
               {showLoading ? (
-                <LoadingState title="속기록 연결 중" description="STT 서버와 연결하고 있습니다..." />
+                <LoadingState
+                  title={isReconnecting ? "속기록 재연결 중" : "속기록 연결 중"}
+                  description={
+                    isReconnecting
+                      ? "네트워크 연결을 복구하고 있습니다..."
+                      : "STT 서버와 연결하고 있습니다..."
+                  }
+                />
               ) : null}
               {showError ? (
                 <EmptyState
                   title="속기록 연결 실패"
-                  description={lastError?.message ?? "WebSocket 연결에 실패했습니다."}
+                  description={lastError?.message ?? "STT 서버와 연결할 수 없습니다."}
                 />
               ) : null}
               {showEmpty ? (

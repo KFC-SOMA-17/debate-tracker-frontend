@@ -1,7 +1,7 @@
 import { TRANSCRIPT_API_PATHS } from "./paths";
 
-export function getSttWebSocketUrl(): string {
-  const fromEnv = import.meta.env.VITE_WS_STT_URL;
+export function getStompBrokerUrl(): string {
+  const fromEnv = import.meta.env.VITE_STOMP_BROKER_URL;
   if (fromEnv) {
     return fromEnv;
   }
@@ -10,12 +10,12 @@ export function getSttWebSocketUrl(): string {
   if (apiBase) {
     const url = new URL(apiBase);
     url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-    url.pathname = TRANSCRIPT_API_PATHS.sttWebSocket;
+    url.pathname = TRANSCRIPT_API_PATHS.stompEndpoint;
     url.search = "";
     url.hash = "";
     return url.toString();
   }
 
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${protocol}//${window.location.host}${TRANSCRIPT_API_PATHS.sttWebSocket}`;
+  return `${protocol}//${window.location.host}${TRANSCRIPT_API_PATHS.stompEndpoint}`;
 }

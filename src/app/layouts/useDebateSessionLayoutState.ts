@@ -48,7 +48,7 @@ export function useDebateSessionLayoutState() {
   });
 
   const { recordingStatus } = useAudioCapture({
-    enabled: transcriptWsEnabled,
+    enabled: transcriptWsEnabled && transcript.canSendAudio,
     onChunk: buffer => transcript.sendPcm(buffer),
   });
 

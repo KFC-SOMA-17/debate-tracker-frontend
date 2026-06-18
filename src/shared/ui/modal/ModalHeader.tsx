@@ -1,7 +1,12 @@
 import { useEffect, type HTMLAttributes, type ReactNode } from "react";
-import { cn } from "@/shared/lib/cn";
 import { ModalCloseButton } from "./ModalCloseButton";
 import { useModalContext } from "./useModalContext";
+import {
+  ModalHeaderContent,
+  ModalHeaderDescription,
+  ModalHeaderRoot,
+  ModalHeaderTitle,
+} from "./ModalComponents.styles";
 
 export interface ModalHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title?: ReactNode;
@@ -25,27 +30,17 @@ export function ModalHeader({
   }, [description, registerHasDescription]);
 
   return (
-    <div
-      className={cn(
-        "flex shrink-0 items-start justify-between gap-4 border-b border-border-subtle px-6 py-5",
-        className
-      )}
-      {...props}
-    >
-      <div className="min-w-0 flex-1">
-        {title ? (
-          <h2 id={titleId} className="font-display text-lg font-semibold text-text-primary">
-            {title}
-          </h2>
-        ) : null}
+    <ModalHeaderRoot className={className} {...props}>
+      <ModalHeaderContent>
+        {title ? <ModalHeaderTitle id={titleId}>{title}</ModalHeaderTitle> : null}
         {description ? (
-          <p id={descriptionId} className={cn("text-sm text-text-secondary", title != null && "mt-1")}>
+          <ModalHeaderDescription id={descriptionId} $hasTitle={title != null}>
             {description}
-          </p>
+          </ModalHeaderDescription>
         ) : null}
         {children}
-      </div>
+      </ModalHeaderContent>
       {showCloseButton ? <ModalCloseButton /> : null}
-    </div>
+    </ModalHeaderRoot>
   );
 }

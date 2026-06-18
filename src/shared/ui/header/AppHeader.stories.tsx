@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { ClockIcon } from "@/shared/ui/icons";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
+import { StoryTimer } from "@/shared/ui/stories/StoryLayout.styles";
 import { AppHeader } from "./AppHeader";
 import { HeaderBrand } from "./HeaderBrand";
 
@@ -21,7 +23,11 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     brand: <HeaderBrand />,
-    trailing: <Badge variant="status" tone="muted">토론 대기 중</Badge>,
+    trailing: (
+      <Badge variant="status" tone="muted">
+        토론 대기 중
+      </Badge>
+    ),
   },
 };
 
@@ -33,10 +39,12 @@ export const DebateInProgress: Story = {
         <Badge variant="status" tone="info">
           토론 진행 중
         </Badge>
-        <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
-          <ClockIcon className="size-3.5" aria-hidden />
+        <StoryTimer>
+          <IconSlot $size="0.875rem">
+            <ClockIcon aria-hidden />
+          </IconSlot>
           24:18
-        </span>
+        </StoryTimer>
         <Button variant="danger" size="md">
           토론 종료
         </Button>

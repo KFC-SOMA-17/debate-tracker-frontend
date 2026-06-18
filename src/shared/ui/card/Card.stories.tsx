@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { StoryColumn, StorySecondaryText } from "@/shared/ui/stories/StoryLayout.styles";
 import { Card } from "./Card";
 
 const meta = {
@@ -12,16 +13,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: <p className="text-sm text-text-secondary">카드 프리미티브 — 도메인 콘텐츠는 children으로 전달합니다.</p>,
+    children: (
+      <StorySecondaryText>카드 프리미티브 — 도메인 콘텐츠는 children으로 전달합니다.</StorySecondaryText>
+    ),
   },
 };
 
 export const PaddingVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
+    <StoryColumn>
       <Card padding="sm">Small padding</Card>
       <Card padding="md">Medium padding</Card>
       <Card padding="lg">Large padding</Card>
-    </div>
+    </StoryColumn>
   ),
 };

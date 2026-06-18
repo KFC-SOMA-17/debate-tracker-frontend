@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "react";
-import { cn } from "@/shared/lib/cn";
+import { QuoteBoxRoot } from "./QuoteBox.styles";
 
 export interface QuoteBoxProps extends HTMLAttributes<HTMLQuoteElement> {
   cite?: string;
@@ -7,15 +7,8 @@ export interface QuoteBoxProps extends HTMLAttributes<HTMLQuoteElement> {
 
 export function QuoteBox({ className, children, cite, ...props }: QuoteBoxProps) {
   return (
-    <blockquote
-      cite={cite}
-      className={cn(
-        "rounded-xl border border-border-subtle bg-bg-subtle px-5 py-4 text-sm leading-relaxed text-text-primary",
-        className,
-      )}
-      {...props}
-    >
+    <QuoteBoxRoot cite={cite} className={className} {...props}>
       {children}
-    </blockquote>
+    </QuoteBoxRoot>
   );
 }

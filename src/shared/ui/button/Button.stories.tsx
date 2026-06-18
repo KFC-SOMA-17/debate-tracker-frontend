@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { NetworkIcon } from "@/shared/ui/icons";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
+import { StoryColumn, StoryRowEnd } from "@/shared/ui/stories/StoryLayout.styles";
 import { Button } from "./Button";
 
 const meta = {
@@ -31,7 +33,8 @@ export const Primary: Story = {
 };
 
 export const PrimaryHover: Story = {
-  args: { children: "Hover", variant: "primary", className: "brightness-95" },
+  args: { children: "Hover", variant: "primary" },
+  parameters: { pseudo: { hover: true } },
 };
 
 export const PrimaryDisabled: Story = {
@@ -44,11 +47,11 @@ export const PrimaryLoading: Story = {
 
 export const PrimarySizes: Story = {
   render: () => (
-    <div className="flex flex-wrap items-end gap-3">
+    <StoryRowEnd>
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
-    </div>
+    </StoryRowEnd>
   ),
 };
 
@@ -60,7 +63,11 @@ export const SecondaryWithIcon: Story = {
   args: {
     children: "With Icon",
     variant: "secondary",
-    leftIcon: <NetworkIcon className="size-4" aria-hidden />,
+    leftIcon: (
+      <IconSlot $size="1rem">
+        <NetworkIcon aria-hidden />
+      </IconSlot>
+    ),
   },
 };
 
@@ -72,19 +79,30 @@ export const FloatingAction: Story = {
   args: {
     children: "실시간 주장 트리",
     variant: "fab",
-    leftIcon: <NetworkIcon className="size-5" aria-hidden />,
+    leftIcon: (
+      <IconSlot $size="1.25rem">
+        <NetworkIcon aria-hidden />
+      </IconSlot>
+    ),
   },
 };
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
+    <StoryColumn>
       <Button variant="primary">Primary</Button>
       <Button variant="secondary">Secondary</Button>
       <Button variant="danger">Danger</Button>
-      <Button variant="fab" leftIcon={<NetworkIcon className="size-5" aria-hidden />}>
+      <Button
+        variant="fab"
+        leftIcon={
+          <IconSlot $size="1.25rem">
+            <NetworkIcon aria-hidden />
+          </IconSlot>
+        }
+      >
         FAB
       </Button>
-    </div>
+    </StoryColumn>
   ),
 };

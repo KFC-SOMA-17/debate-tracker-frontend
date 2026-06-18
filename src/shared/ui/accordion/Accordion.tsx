@@ -1,6 +1,13 @@
 import { useId, useState, type HTMLAttributes, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/shared/ui/icons";
-import { cn } from "@/shared/lib/cn";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
+import {
+  AccordionChevronSlot,
+  AccordionItemRoot,
+  AccordionPanel,
+  AccordionRoot,
+  AccordionTrigger,
+} from "./Accordion.styles";
 
 export interface AccordionItemProps {
   id: string;
@@ -36,36 +43,36 @@ export function Accordion({ items, allowMultiple = false, className, ...props }:
   };
 
   return (
-    <div className={cn("flex w-full flex-col gap-2", className)} {...props}>
+    <AccordionRoot className={className} {...props}>
       {items.map((item) => {
         const isOpen = openIds.has(item.id);
         const triggerId = `${baseId}-${item.id}-trigger`;
         const panelId = `${baseId}-${item.id}-panel`;
 
         return (
-          <div key={item.id} className="overflow-hidden rounded-xl border border-border-default">
-            <button
+          <AccordionItemRoot key={item.id}>
+            <AccordionTrigger
               id={triggerId}
               type="button"
               aria-expanded={isOpen}
               aria-controls={panelId}
               onClick={() => toggle(item.id)}
-              className="flex w-full items-center justify-between gap-3 bg-bg-default px-4 py-3 text-left text-sm font-medium text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
             >
               <span>{item.title}</span>
-              <ChevronDownIcon
-                className={cn("size-4 shrink-0 text-text-muted transition-transform", isOpen && "rotate-180")}
-                aria-hidden
-              />
-            </button>
+              <AccordionChevronSlot $isOpen={isOpen}>
+                <IconSlot $size="1rem">
+                  <ChevronDownIcon aria-hidden />
+                </IconSlot>
+              </AccordionChevronSlot>
+            </AccordionTrigger>
             {isOpen ? (
-              <div id={panelId} role="region" aria-labelledby={triggerId} className="border-t border-border-subtle px-4 py-3 text-sm text-text-secondary">
+              <AccordionPanel id={panelId} role="region" aria-labelledby={triggerId}>
                 {item.children}
-              </div>
+              </AccordionPanel>
             ) : null}
-          </div>
+          </AccordionItemRoot>
         );
       })}
-    </div>
+    </AccordionRoot>
   );
 }

@@ -1,10 +1,9 @@
 import { useCallback } from "react";
-import { Group, Separator, useGroupRef } from "react-resizable-panels";
+import { useGroupRef } from "react-resizable-panels";
 import { useDebateSessionLayout } from "@/app/layouts/DebateSessionLayoutContext";
 import { IssueSummaryPanel } from "@/features/issueSummary/components/IssueSummaryPanel";
 import { TranscriptPanel } from "@/features/transcript/components/TranscriptPanel";
 import { useUiStore } from "@/shared/store/uiStore";
-import { cn } from "@/shared/lib/cn";
 import {
   createDefaultSplitLayout,
   getDefaultSplitRatio,
@@ -12,6 +11,7 @@ import {
   SPLIT_GROUP_ID,
   SPLIT_PANEL_IDS,
 } from "../constants/splitLayout";
+import { SplitGroup, SplitPanelHandle } from "./MainDashboardSplitView.styles";
 import { SplitPanelShell } from "./SplitPanelShell";
 import { SplitResizeGrip } from "./SplitResizeGrip";
 
@@ -30,11 +30,11 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
   }, [groupRef, setSplitRatio]);
 
   return (
-    <Group
+    <SplitGroup
       id={SPLIT_GROUP_ID}
       groupRef={groupRef}
       orientation="horizontal"
-      className={cn("flex h-full min-h-0 min-w-0 flex-1", className)}
+      className={className}
       defaultLayout={createDefaultSplitLayout()}
       onLayoutChanged={layout => {
         const left = layout[SPLIT_PANEL_IDS.transcript];
@@ -52,16 +52,15 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         onRestoreLayout={applyDefaultLayout}
       >
         <TranscriptPanel
-          className="h-full"
           phase={phase}
           segments={transcriptSegments}
           sttStatus={sttStatus}
           lastError={lastSttError}
         />
       </SplitPanelShell>
-      <Separator className="split-panel-handle" disableDoubleClick onDoubleClick={applyDefaultLayout}>
+      <SplitPanelHandle disableDoubleClick onDoubleClick={applyDefaultLayout}>
         <SplitResizeGrip />
-      </Separator>
+      </SplitPanelHandle>
       <SplitPanelShell
         id={SPLIT_PANEL_IDS.issueSummary}
         defaultSize={SPLIT_DEFAULT_LAYOUT[SPLIT_PANEL_IDS.issueSummary]}
@@ -70,8 +69,8 @@ export function MainDashboardSplitView({ className }: MainDashboardSplitViewProp
         expandDirection="left"
         onRestoreLayout={applyDefaultLayout}
       >
-        <IssueSummaryPanel phase={phase} className="h-full" />
+        <IssueSummaryPanel phase={phase} />
       </SplitPanelShell>
-    </Group>
+    </SplitGroup>
   );
 }

@@ -2,7 +2,7 @@ import type { DebateSessionPhase } from "@/app/layouts/DebateSessionLayoutContex
 import { EmptyState, LoadingState } from "@/shared/ui/feedback";
 import { Badge } from "@/shared/ui/badge";
 import { MessageSquareIcon } from "@/shared/ui/icons";
-import { cn } from "@/shared/lib/cn";
+import { theme } from "@/styles/theme";
 import { useMemo } from "react";
 import { groupSegmentsBySpeaker } from "../lib/groupSegmentsBySpeaker";
 import { useTranscriptPanelScroll } from "../hooks/useTranscriptPanelScroll";
@@ -10,6 +10,18 @@ import type { SttConnectionStatus } from "../hooks/useSttWebSocket";
 import type { SttErrorData, TranscriptionSegment } from "../types/sttMessages";
 import { TranscriptNewUtterancesButton } from "./TranscriptNewUtterancesButton";
 import { TranscriptUtteranceCard } from "./TranscriptUtteranceCard";
+import {
+  ContentArea,
+  EmptyIconSlot,
+  FloatingButtonWrapper,
+  Header,
+  NewUtterancesButtonSlot,
+  PlaceholderCenter,
+  Root,
+  ScrollList,
+  Title,
+  UtteranceList,
+} from "./TranscriptPanel.styles";
 
 export type TranscriptPanelProps = {
   phase: DebateSessionPhase;
@@ -60,24 +72,20 @@ export function TranscriptPanel({ phase, segments, sttStatus, lastError, classNa
   });
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-1 flex-col overflow-hidden", className)}>
-      <div className="flex h-[52px] shrink-0 items-center justify-between gap-2 border-b border-border-default px-6">
-        <h2 className="text-sm font-medium text-text-primary">실시간 속기록</h2>
+    <Root className={className}>
+      <Header>
+        <Title>실시간 속기록</Title>
         {badge ? (
           <Badge variant="status" tone={badge.tone}>
             {badge.label}
           </Badge>
         ) : null}
-      </div>
+      </Header>
 
-      <div className="relative min-h-0 flex-1">
-        <div
-          ref={listRef}
-          onScroll={handleScroll}
-          className="scrollbar-hidden h-full min-h-0 overflow-y-auto"
-        >
+      <ContentArea>
+        <ScrollList ref={listRef} onScroll={handleScroll}>
           {showPlaceholder ? (
-            <div className="flex h-full min-h-0 items-center justify-center px-4 py-4">
+            <PlaceholderCenter>
               {showLoading ? (
                 <LoadingState title="속기록 연결 중" description="STT 서버와 연결하고 있습니다..." />
               ) : null}
@@ -89,29 +97,35 @@ export function TranscriptPanel({ phase, segments, sttStatus, lastError, classNa
               ) : null}
               {showEmpty ? (
                 <EmptyState
-                  icon={<MessageSquareIcon className="size-10" aria-hidden />}
+                  icon={
+                    <EmptyIconSlot $size={theme.sizes.icon10}>
+                      <MessageSquareIcon aria-hidden />
+                    </EmptyIconSlot>
+                  }
                   title="발화 대기 중"
                   description="토론이 시작되면 발화 내용이 실시간으로 표시됩니다."
                 />
               ) : null}
-            </div>
+            </PlaceholderCenter>
           ) : (
-            <ul className="flex flex-col gap-3 px-4 py-4">
+            <UtteranceList>
               {utteranceGroups.map(group => (
                 <li key={group.id}>
                   <TranscriptUtteranceCard group={group} />
                 </li>
               ))}
-            </ul>
+            </UtteranceList>
           )}
-        </div>
+        </ScrollList>
 
         {showNewUtterancesButton && !showPlaceholder ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center px-4">
-            <TranscriptNewUtterancesButton className="pointer-events-auto" onClick={scrollToBottom} />
-          </div>
+          <FloatingButtonWrapper>
+            <NewUtterancesButtonSlot>
+              <TranscriptNewUtterancesButton onClick={scrollToBottom} />
+            </NewUtterancesButtonSlot>
+          </FloatingButtonWrapper>
         ) : null}
-      </div>
-    </div>
+      </ContentArea>
+    </Root>
   );
 }

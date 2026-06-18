@@ -1,10 +1,11 @@
+import { ProblemInner, ProblemSection } from "./LandingProblemSection.styles";
 import { LANDING_PROBLEM_ITEMS } from "../landingContent";
 import { LandingCardGrid, LandingInfoCard, LandingSectionHeader } from "./LandingShared";
 
 export function LandingProblemSection() {
   return (
-    <section className="px-6 py-20">
-      <div className="mx-auto max-w-5xl">
+    <ProblemSection>
+      <ProblemInner>
         <LandingSectionHeader
           label="Problem"
           title="기존 토론의 한계"
@@ -21,7 +22,7 @@ export function LandingProblemSection() {
             />
           ))}
         </LandingCardGrid>
-      </div>
-    </section>
+      </ProblemInner>
+    </ProblemSection>
   );
 }

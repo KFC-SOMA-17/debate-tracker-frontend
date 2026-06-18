@@ -6,6 +6,7 @@ import { Navigation } from "@/shared/ui/navigation";
 import { DEBATE_NAV_IDS, DEBATE_NAV_ITEMS } from "./debateNavigation";
 import { DebateSessionHeaderTrailing } from "./DebateSessionHeaderTrailing";
 import { DebateSessionLayoutContext } from "./DebateSessionLayoutContext";
+import { LayoutRoot, MainContent } from "./DebateSessionLayout.styles";
 import { useDebateSessionLayoutState } from "./useDebateSessionLayoutState";
 
 export function DebateSessionLayout() {
@@ -44,17 +45,17 @@ export function DebateSessionLayout() {
         openEndDebateModal,
       }}
     >
-      <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-bg-subtle">
+      <LayoutRoot>
         <AppHeader brand={<HeaderBrand />} trailing={<DebateSessionHeaderTrailing />} />
         <Navigation
           items={[...DEBATE_NAV_ITEMS(phase)]}
           activeId={DEBATE_NAV_IDS.mainDashboard}
           onNavigate={handleNavigate}
         />
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <MainContent>
           <Outlet />
-        </main>
-      </div>
+        </MainContent>
+      </LayoutRoot>
 
       <EndDebateConfirmModal open={isEndModalOpen} onOpenChange={setIsEndModalOpen} onConfirm={confirmEndDebate} />
     </DebateSessionLayoutContext.Provider>

@@ -10,7 +10,7 @@ export type EvidenceListItemProps = {
 };
 
 export function EvidenceListItem({ evidence, stance, className }: EvidenceListItemProps) {
-  const tone = stance === "PROS" ? "info" : "danger";
+  const tone = stance === "PROS" ? "pros" : "danger";
 
   return (
     <div className={cn("flex gap-2", className)}>

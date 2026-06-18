@@ -64,6 +64,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const receiveBlockedRef = useRef(false);
   const sessionEndNotifiedRef = useRef(false);
   const stopRequestedRef = useRef(false);
+  /** 소켓 재연결 시 onOpen에서 START 대신 STOP만 전송 */
+  const pendingStopDebateIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     sessionDebateIdRef.current = sessionDebateId;
@@ -95,6 +97,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       case "DEBATE_START": {
         sessionEndNotifiedRef.current = false;
         stopRequestedRef.current = false;
+        pendingStopDebateIdRef.current = null;
         debateIdRef.current = message.debateId;
         setDebateId(message.debateId);
         setDebateStartedAt(Date.now());
@@ -125,20 +128,16 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     }
   }, [notifySessionEnded]);
 
-  const connect = useCallback(() => {
-    connectionRef.current?.close();
-
-    receiveBlockedRef.current = false;
-    sessionEndNotifiedRef.current = false;
-    stopRequestedRef.current = false;
-    debateIdRef.current = null;
-    setStatus("connecting");
-    setDebateId(null);
-    setDebateStartedAt(null);
-    setLastError(null);
-
+  const openSocketConnection = useCallback(() => {
     const connection = createSttWebSocket({
       onOpen: () => {
+        const pendingStopId = pendingStopDebateIdRef.current;
+        if (pendingStopId != null) {
+          connection.sendStop(pendingStopId);
+          pendingStopDebateIdRef.current = null;
+          return;
+        }
+
         const activeDebateId = parseNumericDebateId(sessionDebateIdRef.current);
         if (activeDebateId == null) {
           console.warn("[useSttWebSocket] START skipped: debateId unavailable");
@@ -173,13 +172,31 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
           notifySessionEnded();
           return;
         }
-        setStatus(current => (current === "ended" || current === "error" ? current : "idle"));
+        setStatus(current =>
+          current === "ended" || current === "error" || current === "stopping" ? current : "idle",
+        );
       },
     });
 
     connectionRef.current = connection;
     connection.connect();
   }, [handleServerMessage, notifySessionEnded]);
+
+  const connect = useCallback(() => {
+    connectionRef.current?.close();
+
+    receiveBlockedRef.current = false;
+    sessionEndNotifiedRef.current = false;
+    stopRequestedRef.current = false;
+    pendingStopDebateIdRef.current = null;
+    debateIdRef.current = null;
+    setStatus("connecting");
+    setDebateId(null);
+    setDebateStartedAt(null);
+    setLastError(null);
+
+    openSocketConnection();
+  }, [openSocketConnection]);
 
   const disconnect = useCallback(() => {
     connectionRef.current?.close();
@@ -198,15 +215,11 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   }, []);
 
   const stopDebate = useCallback(() => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      return;
-    }
-
     const activeDebateId =
       debateIdRef.current ?? parseNumericDebateId(sessionDebateIdRef.current);
     if (activeDebateId == null) {
       console.warn("[useSttWebSocket] STOP skipped: debateId unavailable");
+      notifySessionEnded();
       return;
     }
 
@@ -215,22 +228,30 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     setStatus("stopping");
 
     const sendStopOnce = () => {
-      if (connection.getReadyState() === WebSocket.OPEN) {
+      const connection = connectionRef.current;
+      if (connection?.getReadyState() === WebSocket.OPEN) {
         connection.sendStop(activeDebateId);
         return true;
       }
       return false;
     };
 
-    if (!sendStopOnce()) {
-      const retryTimer = window.setInterval(() => {
-        if (sendStopOnce()) {
-          window.clearInterval(retryTimer);
-        }
-      }, 100);
-      window.setTimeout(() => window.clearInterval(retryTimer), 5_000);
+    if (sendStopOnce()) {
+      return;
     }
-  }, []);
+
+    pendingStopDebateIdRef.current = activeDebateId;
+    connectionRef.current?.close();
+    connectionRef.current = null;
+    openSocketConnection();
+
+    const retryTimer = window.setInterval(() => {
+      if (sendStopOnce()) {
+        window.clearInterval(retryTimer);
+      }
+    }, 100);
+    window.setTimeout(() => window.clearInterval(retryTimer), 5_000);
+  }, [notifySessionEnded, openSocketConnection]);
 
   const sendPcm = useCallback((buffer: ArrayBuffer) => {
     if (statusRef.current !== "recording" || receiveBlockedRef.current) {

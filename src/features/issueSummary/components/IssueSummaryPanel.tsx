@@ -62,7 +62,7 @@ export function IssueSummaryPanel({ phase, className }: IssueSummaryPanelProps) 
   const { agendas, lastUpdatedAt, status, error } = useAgendaSummaryPolling({
     debateId,
     phase,
-    resetWhenDisabled: phase === "idle",
+    resetWhenDisabled: false,
   });
 
   const agendaIds = useMemo(() => agendas.map(agenda => String(agenda.agendaId)), [agendas]);

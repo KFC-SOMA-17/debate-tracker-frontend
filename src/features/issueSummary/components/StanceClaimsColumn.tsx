@@ -22,7 +22,7 @@ export function StanceClaimsColumn({ stance, claims, className }: StanceClaimsCo
       <h3
         className={cn(
           "text-center text-sm font-bold",
-          stance === "PROS" ? "text-accent-primary" : "text-status-danger",
+          stance === "PROS" ? "text-stance-pros" : "text-status-danger",
         )}
       >
         {label}

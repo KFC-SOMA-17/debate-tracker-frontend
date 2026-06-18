@@ -3,7 +3,7 @@ import type { RecordingStatus } from "@/features/audioCapture/types/audioCapture
 import type { SttConnectionStatus } from "@/features/transcript/hooks/useSttWebSocket";
 import type { SttErrorData, TranscriptionSegment } from "@/features/transcript/types/sttMessages";
 
-export type DebateSessionPhase = "idle" | "active" | "ended";
+export type DebateSessionPhase = "active" | "ended";
 
 export type DebateSessionLayoutContextValue = {
   phase: DebateSessionPhase;
@@ -15,7 +15,6 @@ export type DebateSessionLayoutContextValue = {
   transcriptSegments: TranscriptionSegment[];
   sttStatus: SttConnectionStatus;
   lastSttError: SttErrorData | null;
-  openStartDebateModal: () => void;
   openEndDebateModal: () => void;
 };
 

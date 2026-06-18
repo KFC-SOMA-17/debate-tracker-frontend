@@ -29,18 +29,6 @@ export type SttWebSocketMessage = {
   data: TranscriptionSegment | RefinedSegments | SttErrorData | null;
 };
 
-export type StartControlMessage = {
-  type: "START";
-  debateId: number;
-};
-
-export type StopControlMessage = {
-  type: "STOP";
-  debateId: number;
-};
-
-export type ControlMessage = StartControlMessage | StopControlMessage;
-
 const STT_MESSAGE_TYPES: ReadonlySet<string> = new Set([
   "DEBATE_START",
   "TRANSCRIPTION",

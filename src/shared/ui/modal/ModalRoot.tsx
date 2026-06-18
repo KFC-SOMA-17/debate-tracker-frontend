@@ -1,9 +1,9 @@
 import { useCallback, useId, useMemo, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "@/shared/lib/cn";
 import { ModalContext } from "./useModalContext";
 import type { ModalSize } from "./Modal.types";
 import { useBodyScrollLock, useEscapeToClose, useFocusTrap } from "./useModalEffects";
+import { ModalOverlay, ModalPanel } from "./Modal.styles";
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   open: boolean;
@@ -46,7 +46,7 @@ export function ModalRoot({
       panelRef,
       registerHasDescription,
     }),
-    [size, onClose, titleId, descriptionId, registerHasDescription]
+    [size, onClose, titleId, descriptionId, registerHasDescription],
   );
 
   useBodyScrollLock(open);
@@ -65,31 +65,23 @@ export function ModalRoot({
 
   return createPortal(
     <ModalContext.Provider value={contextValue}>
-      <div
-        className="fixed inset-0 z-modal flex items-center justify-center bg-bg-inverse/50 p-4"
-        onClick={handleOverlayClick}
-        data-testid="modal-overlay"
-      >
-        <div
+      <ModalOverlay onClick={handleOverlayClick} data-testid="modal-overlay">
+        <ModalPanel
           ref={panelRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
           aria-describedby={hasDescription ? descriptionId : undefined}
           tabIndex={-1}
-          className={cn(
-            "flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden border border-border-default bg-bg-elevated shadow-lg outline-none",
-            size === "dialog" && "max-w-lg rounded-xl",
-            size === "fullscreen" && "h-[calc(100vh-2rem)] max-w-[calc(100vw-2rem)] rounded-xl",
-            className
-          )}
-          onClick={event => event.stopPropagation()}
+          className={className}
+          $size={size}
+          onClick={(event) => event.stopPropagation()}
           {...props}
         >
           {children}
-        </div>
-      </div>
+        </ModalPanel>
+      </ModalOverlay>
     </ModalContext.Provider>,
-    document.body
+    document.body,
   );
 }

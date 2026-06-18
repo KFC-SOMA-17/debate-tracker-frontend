@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "@/shared/ui/button";
 import { FileTextIcon } from "@/shared/ui/icons";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
 import { EmptyState } from "./EmptyState";
 import { ErrorState } from "./ErrorState";
 import { LoadingState } from "./LoadingState";
@@ -16,7 +17,11 @@ type Story = StoryObj<typeof meta>;
 export const Empty: Story = {
   render: () => (
     <EmptyState
-      icon={<FileTextIcon className="size-12" />}
+      icon={
+        <IconSlot $size="3rem">
+          <FileTextIcon />
+        </IconSlot>
+      }
       title="아직 발화 데이터가 없습니다"
       description="토론이 시작되면 실시간으로 표시됩니다"
     />

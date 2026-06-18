@@ -4,6 +4,12 @@ import { SetupTopicStep } from "@/features/debateSetup/components/SetupTopicStep
 import { useSetupFunnel } from "@/features/debateSetup/hooks/useSetupFunnel";
 import { AppHeader, HeaderBrand } from "@/shared/ui/header";
 import { StepProgress } from "@/shared/ui/stepper";
+import {
+  ContentInner,
+  MainContent,
+  PageRoot,
+  StepContent,
+} from "./DebateSetupPage.styles";
 
 export function DebateSetupPage() {
   useActiveDebateRedirect();
@@ -28,12 +34,12 @@ export function DebateSetupPage() {
   } = useSetupFunnel();
 
   return (
-    <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-bg-subtle">
+    <PageRoot>
       <AppHeader brand={<HeaderBrand />} />
-      <main className="min-h-0 flex-1 overflow-y-auto scrollbar-hidden px-6 pt-16 pb-12">
-        <div className="mx-auto w-full max-w-xl">
+      <MainContent>
+        <ContentInner>
           <StepProgress steps={stepProgressItems} />
-          <div className="mt-8">
+          <StepContent>
             {currentStepId === "topic" ? (
               <SetupTopicStep
                 topicInput={topicInput}
@@ -57,9 +63,9 @@ export function DebateSetupPage() {
                 onStartDebate={confirmStartDebate}
               />
             )}
-          </div>
-        </div>
-      </main>
-    </div>
+          </StepContent>
+        </ContentInner>
+      </MainContent>
+    </PageRoot>
   );
 }

@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { Panel, usePanelRef } from "react-resizable-panels";
+import { usePanelRef } from "react-resizable-panels";
 import { SPLIT_COLLAPSE_THRESHOLD, SPLIT_COLLAPSED_RAIL_PX } from "../constants/splitLayout";
 import { CollapsedPanelRail } from "./CollapsedPanelRail";
+import { ShellRegion, ShellRoot, SplitPanel } from "./SplitPanelShell.styles";
 
 export type SplitPanelShellProps = {
   id: string;
@@ -31,27 +32,26 @@ export function SplitPanelShell({
   };
 
   return (
-    <Panel
+    <SplitPanel
       id={id}
       panelRef={panelRef}
       defaultSize={defaultSize}
       minSize={SPLIT_COLLAPSE_THRESHOLD}
       collapsible
       collapsedSize={SPLIT_COLLAPSED_RAIL_PX}
-      className="min-h-0 min-w-0"
       onResize={() => {
         setIsCollapsed(panelRef.current?.isCollapsed() ?? false);
       }}
     >
-      <div className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-bg-default">
+      <ShellRoot>
         {isCollapsed ? (
           <CollapsedPanelRail label={railLabel} expandDirection={expandDirection} onExpand={handleRestoreLayout} />
         ) : (
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden" aria-label={ariaLabel} role="region">
+          <ShellRegion aria-label={ariaLabel} role="region">
             {children}
-          </div>
+          </ShellRegion>
         )}
-      </div>
-    </Panel>
+      </ShellRoot>
+    </SplitPanel>
   );
 }

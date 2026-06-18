@@ -1,6 +1,5 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import tailwindcss from "@tailwindcss/vite";
 import type { StorybookConfig } from "@storybook/react-vite";
 import svgr from "vite-plugin-svgr";
 
@@ -15,14 +14,21 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-mcp",
   ],
-  framework: "@storybook/react-vite",
+  framework: {
+    name: "@storybook/react-vite",
+    options: {
+      builder: {
+        viteConfigPath: undefined,
+      },
+    },
+  },
   viteFinal: async (config) => {
     config.resolve ??= {};
     config.resolve.alias = {
       ...config.resolve.alias,
       "@": path.resolve(rootDir, "../src"),
     };
-    config.plugins = [...(config.plugins ?? []), svgr(), tailwindcss()];
+    config.plugins = [...(config.plugins ?? []), svgr()];
     return config;
   },
 };

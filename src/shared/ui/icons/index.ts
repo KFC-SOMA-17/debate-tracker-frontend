@@ -28,3 +28,4 @@ export { default as StopCircleIcon } from "./StopCircle.svg?react";
 export { default as XIcon } from "./X.svg?react";
 export { default as ZoomInIcon } from "./ZoomIn.svg?react";
 export { default as ZoomOutIcon } from "./ZoomOut.svg?react";
+export { IconSlot } from "./IconSlot";

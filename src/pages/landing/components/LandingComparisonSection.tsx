@@ -1,57 +1,79 @@
 import { LogoIcon } from "@/shared/ui/icons";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
 import {
   LandingCheckCircleFilledIcon,
   LandingXCircleFilledIcon,
 } from "@/shared/ui/icons/landing";
+import { theme } from "@/styles/theme";
 import { LANDING_COMPARISON_ROWS } from "../landingContent";
 import { LandingSectionHeader } from "./LandingShared";
+import {
+  ComparisonCell,
+  ComparisonFeature,
+  ComparisonHeader,
+  ComparisonHeaderBrand,
+  ComparisonHeaderGeneric,
+  ComparisonHeaderLabel,
+  ComparisonInner,
+  ComparisonRow,
+  ComparisonSection,
+  ComparisonTable,
+} from "./LandingComparisonSection.styles";
 
 export function LandingComparisonSection() {
   return (
-    <section className="px-6 py-20">
-      <div className="mx-auto max-w-4xl">
+    <ComparisonSection>
+      <ComparisonInner>
         <LandingSectionHeader
           label="Why Debate Tracker"
           title="범용 AI와 무엇이 다른가요?"
           description="GPT 등 범용 AI는 토론 맥락을 이해하지 못합니다. Debate Tracker는 토론 전용으로 설계된 분석 엔진입니다."
         />
 
-        <div className="mt-14 overflow-hidden rounded-2xl border border-border-default bg-bg-elevated shadow-sm">
-          <div className="grid grid-cols-[1fr_1fr_1fr] border-b border-border-subtle bg-bg-subtle px-6 py-4 text-sm">
-            <span className="font-medium text-text-muted">기능</span>
-            <span className="flex items-center justify-center gap-2 font-semibold text-text-primary">
-              <LogoIcon className="size-6 shrink-0" aria-hidden />
+        <ComparisonTable>
+          <ComparisonHeader>
+            <ComparisonHeaderLabel>기능</ComparisonHeaderLabel>
+            <ComparisonHeaderBrand>
+              <IconSlot $size={theme.spacing[6]}>
+                <LogoIcon aria-hidden />
+              </IconSlot>
               Debate Tracker
-            </span>
-            <span className="text-center font-medium text-text-muted">범용 AI (GPT 등)</span>
-          </div>
+            </ComparisonHeaderBrand>
+            <ComparisonHeaderGeneric>범용 AI (GPT 등)</ComparisonHeaderGeneric>
+          </ComparisonHeader>
 
           {LANDING_COMPARISON_ROWS.map((row, index) => (
-            <div
+            <ComparisonRow
               key={row.feature}
-              className={`grid grid-cols-[1fr_1fr_1fr] items-center px-6 py-3.5 text-sm ${
-                index < LANDING_COMPARISON_ROWS.length - 1 ? "border-b border-border-subtle" : ""
-              }`}
+              $hasBorder={index < LANDING_COMPARISON_ROWS.length - 1}
             >
-              <span className="text-text-primary">{row.feature}</span>
-              <span className="flex justify-center">
+              <ComparisonFeature>{row.feature}</ComparisonFeature>
+              <ComparisonCell>
                 {row.debateTracker ? (
-                  <LandingCheckCircleFilledIcon className="size-5" aria-label="지원" />
+                  <IconSlot $size={theme.sizes.icon5}>
+                    <LandingCheckCircleFilledIcon aria-label="지원" />
+                  </IconSlot>
                 ) : (
-                  <LandingXCircleFilledIcon className="size-5" aria-label="미지원" />
+                  <IconSlot $size={theme.sizes.icon5}>
+                    <LandingXCircleFilledIcon aria-label="미지원" />
+                  </IconSlot>
                 )}
-              </span>
-              <span className="flex justify-center">
+              </ComparisonCell>
+              <ComparisonCell>
                 {row.generalAi ? (
-                  <LandingCheckCircleFilledIcon className="size-5" aria-label="지원" />
+                  <IconSlot $size={theme.sizes.icon5}>
+                    <LandingCheckCircleFilledIcon aria-label="지원" />
+                  </IconSlot>
                 ) : (
-                  <LandingXCircleFilledIcon className="size-5" aria-label="미지원" />
+                  <IconSlot $size={theme.sizes.icon5}>
+                    <LandingXCircleFilledIcon aria-label="미지원" />
+                  </IconSlot>
                 )}
-              </span>
-            </div>
+              </ComparisonCell>
+            </ComparisonRow>
           ))}
-        </div>
-      </div>
-    </section>
+        </ComparisonTable>
+      </ComparisonInner>
+    </ComparisonSection>
   );
 }

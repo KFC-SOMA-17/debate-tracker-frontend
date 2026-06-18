@@ -2,7 +2,10 @@ import { getRecordingStatusBadgePresentation } from "@/features/audioCapture/lib
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { ClockIcon, RadioIcon } from "@/shared/ui/icons";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
+import { theme } from "@/styles/theme";
 import { useDebateSessionLayout } from "./DebateSessionLayoutContext";
+import { ElapsedTime } from "./DebateSessionHeaderTrailing.styles";
 
 export function DebateSessionHeaderTrailing() {
   const {
@@ -20,13 +23,25 @@ export function DebateSessionHeaderTrailing() {
         <Badge variant="status" tone="info">
           토론 진행 중
         </Badge>
-        <Badge variant="status" tone="muted" leftIcon={<ClockIcon className="size-3.5" aria-hidden />}>
+        <Badge
+          variant="status"
+          tone="muted"
+          leftIcon={
+            <IconSlot $size={theme.sizes.icon3_5}>
+              <ClockIcon aria-hidden />
+            </IconSlot>
+          }
+        >
           {elapsedLabel}
         </Badge>
         <Badge
           variant="status"
           tone={recordingBadge.tone}
-          leftIcon={<RadioIcon className="size-3.5" aria-hidden />}
+          leftIcon={
+            <IconSlot $size={theme.sizes.icon3_5}>
+              <RadioIcon aria-hidden />
+            </IconSlot>
+          }
         >
           {recordingBadge.label}
         </Badge>
@@ -42,10 +57,12 @@ export function DebateSessionHeaderTrailing() {
       <Badge variant="status" tone="muted">
         토론 종료
       </Badge>
-      <span className="inline-flex items-center gap-1.5 text-sm text-text-secondary">
-        <ClockIcon className="size-3.5 shrink-0" aria-hidden />
+      <ElapsedTime>
+        <IconSlot $size={theme.sizes.icon3_5}>
+          <ClockIcon aria-hidden />
+        </IconSlot>
         {elapsedLabel}
-      </span>
+      </ElapsedTime>
     </>
   );
 }

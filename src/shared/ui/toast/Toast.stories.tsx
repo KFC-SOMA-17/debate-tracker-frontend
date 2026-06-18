@@ -3,6 +3,12 @@ import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "@/shared/ui/button";
 import { AppHeader, HeaderBrand } from "@/shared/ui/header";
 import { Modal } from "@/shared/ui/modal";
+import {
+  StoryFullscreenShell,
+  StoryMainRow,
+  StoryRow,
+  StorySecondaryText,
+} from "@/shared/ui/stories/StoryLayout.styles";
 import { TOAST_POSITIONS, ToastProvider, useToast, type ToastPosition, type ToastVariant } from "./index";
 
 const withToastProvider: Decorator = (Story) => (
@@ -44,7 +50,7 @@ function VariantsDemo() {
   const { toast } = useToast();
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <StoryRow>
       <Button variant="secondary" onClick={() => toast({ content: "일반 알림입니다.", variant: "default" })}>
         Default
       </Button>
@@ -52,7 +58,7 @@ function VariantsDemo() {
       <Button variant="danger" onClick={() => toast({ content: "요청에 실패했습니다.", variant: "error" })}>
         Error
       </Button>
-    </div>
+    </StoryRow>
   );
 }
 
@@ -60,7 +66,7 @@ function DurationDemo() {
   const { toast } = useToast();
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <StoryRow>
       <Button onClick={() => toast({ content: "3초 후 자동으로 닫힙니다.", variant: "success", duration: 3000 })}>
         3초 자동 닫힘
       </Button>
@@ -70,7 +76,7 @@ function DurationDemo() {
       >
         무기한
       </Button>
-    </div>
+    </StoryRow>
   );
 }
 
@@ -78,7 +84,7 @@ function PositionsDemo() {
   const { toast } = useToast();
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <StoryRow>
       {TOAST_POSITIONS.map((position) => (
         <Button
           key={position}
@@ -88,7 +94,7 @@ function PositionsDemo() {
           {position}
         </Button>
       ))}
-    </div>
+    </StoryRow>
   );
 }
 
@@ -113,9 +119,9 @@ function WithModalDemo() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-bg-subtle">
+    <StoryFullscreenShell>
       <AppHeader brand={<HeaderBrand />} trailing={null} />
-      <main className="flex flex-wrap gap-2 p-6">
+      <StoryMainRow>
         <Button onClick={() => setOpen(true)}>모달 열기</Button>
         <Button
           variant="secondary"
@@ -123,11 +129,11 @@ function WithModalDemo() {
         >
           Toast 표시
         </Button>
-      </main>
+      </StoryMainRow>
       <Modal open={open} onOpenChange={setOpen} size="dialog">
         <Modal.Header title="토론 주제 입력" description="모달이 열린 상태에서도 Toast가 위에 보입니다." />
         <Modal.Body>
-          <p className="text-sm text-text-secondary">Toast 버튼을 눌러 z-index 동작을 확인하세요.</p>
+          <StorySecondaryText>Toast 버튼을 눌러 z-index 동작을 확인하세요.</StorySecondaryText>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setOpen(false)}>
@@ -135,7 +141,7 @@ function WithModalDemo() {
           </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+    </StoryFullscreenShell>
   );
 }
 

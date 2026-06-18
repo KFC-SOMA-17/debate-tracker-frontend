@@ -3,7 +3,9 @@ import { DEBATE_ROUTES } from "@/app/router";
 import { useActiveDebateRedirect } from "@/features/debate/hooks/useActiveDebateRedirect";
 import { Button } from "@/shared/ui/button";
 import { AppHeader, HeaderBrand } from "@/shared/ui/header";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
 import { LandingArrowRightIcon } from "@/shared/ui/icons/landing";
+import { theme } from "@/styles/theme";
 import { LandingComparisonSection } from "./components/LandingComparisonSection";
 import { LandingCtaSection } from "./components/LandingCtaSection";
 import { LandingFeaturesSection } from "./components/LandingFeaturesSection";
@@ -11,6 +13,7 @@ import { LandingFooter } from "./components/LandingFooter";
 import { LandingHeroSection } from "./components/LandingHeroSection";
 import { LandingProblemSection } from "./components/LandingProblemSection";
 import { LandingUseCasesSection } from "./components/LandingUseCasesSection";
+import { MainContent, PageRoot } from "./LandingPage.styles";
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -19,7 +22,7 @@ export function LandingPage() {
   const goToSetup = () => navigate(DEBATE_ROUTES.setup);
 
   return (
-    <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-bg-default">
+    <PageRoot>
       <AppHeader
         brand={<HeaderBrand />}
         trailing={
@@ -27,15 +30,18 @@ export function LandingPage() {
             type="button"
             variant="primary"
             size="md"
-            className="cursor-pointer"
-            rightIcon={<LandingArrowRightIcon className="size-3.5" aria-hidden />}
+            rightIcon={
+              <IconSlot $size={theme.sizes.icon3_5}>
+                <LandingArrowRightIcon aria-hidden />
+              </IconSlot>
+            }
             onClick={goToSetup}
           >
             토론 시작
           </Button>
         }
       />
-      <main className="min-h-0 flex-1 overflow-y-auto scrollbar-hidden">
+      <MainContent>
         <LandingHeroSection onStartDebate={goToSetup} />
         <LandingProblemSection />
         <LandingFeaturesSection />
@@ -43,7 +49,7 @@ export function LandingPage() {
         <LandingUseCasesSection />
         <LandingCtaSection onStartDebate={goToSetup} />
         <LandingFooter />
-      </main>
-    </div>
+      </MainContent>
+    </PageRoot>
   );
 }

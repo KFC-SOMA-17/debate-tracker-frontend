@@ -1,6 +1,6 @@
-import { cn } from "@/shared/lib/cn";
 import type { Claim, ClaimStance } from "../types/agendaSummary";
 import { ClaimEvidenceAccordion } from "./ClaimEvidenceAccordion";
+import { Column, Heading } from "./StanceClaimsColumn.styles";
 
 export type StanceClaimsColumnProps = {
   stance: ClaimStance;
@@ -12,22 +12,9 @@ export function StanceClaimsColumn({ stance, claims, className }: StanceClaimsCo
   const label = stance === "PROS" ? "찬성 측" : "반대 측";
 
   return (
-    <div
-      className={cn(
-        "flex min-w-0 flex-col gap-4 py-4",
-        stance === "PROS" ? "pr-6" : "pl-6",
-        className,
-      )}
-    >
-      <h3
-        className={cn(
-          "text-center text-sm font-bold",
-          stance === "PROS" ? "text-stance-pros" : "text-status-danger",
-        )}
-      >
-        {label}
-      </h3>
+    <Column className={className} $stance={stance}>
+      <Heading $stance={stance}>{label}</Heading>
       <ClaimEvidenceAccordion claims={claims} stance={stance} />
-    </div>
+    </Column>
   );
 }

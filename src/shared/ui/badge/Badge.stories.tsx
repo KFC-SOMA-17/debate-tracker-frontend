@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { StoryRow } from "@/shared/ui/stories/StoryLayout.styles";
 import { Badge } from "./Badge";
 
 const meta = {
@@ -24,13 +25,13 @@ export const Evidence: Story = {
 
 export const Tones: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-2">
+    <StoryRow>
       <Badge tone="default">Default</Badge>
       <Badge tone="success">Success</Badge>
       <Badge tone="warning">Warning</Badge>
       <Badge tone="danger">Danger</Badge>
       <Badge tone="info">Info</Badge>
       <Badge tone="muted">Muted</Badge>
-    </div>
+    </StoryRow>
   ),
 };

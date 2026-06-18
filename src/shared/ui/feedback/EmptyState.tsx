@@ -1,5 +1,11 @@
 import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/shared/lib/cn";
+import {
+  FeedbackAction,
+  FeedbackDescription,
+  FeedbackIconSlot,
+  FeedbackRoot,
+  FeedbackTitle,
+} from "./Feedback.styles";
 
 export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   icon?: ReactNode;
@@ -10,15 +16,13 @@ export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "t
 
 export function EmptyState({ icon, title, description, action, className, ...props }: EmptyStateProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center px-6 py-12 text-center", className)} {...props}>
-      {icon ? <div className="mb-4 text-text-muted">{icon}</div> : null}
+    <FeedbackRoot className={className} {...props}>
+      {icon ? <FeedbackIconSlot>{icon}</FeedbackIconSlot> : null}
 
-      <h3 className="text-sm font-medium text-text-primary">{title}</h3>
-      {description ? (
-        <p className="mt-2 max-w-md whitespace-pre-line text-xs text-text-secondary">{description}</p>
-      ) : null}
+      <FeedbackTitle>{title}</FeedbackTitle>
+      {description ? <FeedbackDescription>{description}</FeedbackDescription> : null}
 
-      {action ? <div className="mt-4">{action}</div> : null}
-    </div>
+      {action ? <FeedbackAction>{action}</FeedbackAction> : null}
+    </FeedbackRoot>
   );
 }

@@ -1,6 +1,7 @@
 import { Accordion } from "@/shared/ui/accordion";
 import type { Claim, ClaimStance } from "../types/agendaSummary";
 import { EvidenceListItem } from "./EvidenceListItem";
+import { EmptyText, EvidenceList, NoEvidenceText } from "./ClaimEvidenceAccordion.styles";
 
 export type ClaimEvidenceAccordionProps = {
   claims: Claim[];
@@ -9,7 +10,7 @@ export type ClaimEvidenceAccordionProps = {
 
 export function ClaimEvidenceAccordion({ claims, stance }: ClaimEvidenceAccordionProps) {
   if (claims.length === 0) {
-    return <p className="text-center text-xs text-text-muted">아직 주장이 없습니다.</p>;
+    return <EmptyText>아직 주장이 없습니다.</EmptyText>;
   }
 
   const items = claims.map(claim => ({
@@ -17,15 +18,15 @@ export function ClaimEvidenceAccordion({ claims, stance }: ClaimEvidenceAccordio
     title: claim.content?.trim() || "주장",
     defaultOpen: true,
     children: (
-      <div className="flex flex-col gap-2">
+      <EvidenceList>
         {claim.evidences.length === 0 ? (
-          <p className="text-xs text-text-muted">근거가 아직 없습니다.</p>
+          <NoEvidenceText>근거가 아직 없습니다.</NoEvidenceText>
         ) : (
           claim.evidences.map(evidence => (
             <EvidenceListItem key={evidence.evidenceId} evidence={evidence} stance={stance} />
           ))
         )}
-      </div>
+      </EvidenceList>
     ),
   }));
 

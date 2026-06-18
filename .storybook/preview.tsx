@@ -1,7 +1,16 @@
 import type { Preview } from "@storybook/react-vite";
-import "../src/index.css";
+import { ThemeProvider } from "@emotion/react";
+import { GlobalStyles, theme } from "../src/styles";
 
 const preview: Preview = {
+  decorators: [
+    Story => (
+      <ThemeProvider theme={theme}>
+        <GlobalStyles />
+        <Story />
+      </ThemeProvider>
+    ),
+  ],
   parameters: {
     layout: "centered",
     controls: {
@@ -16,8 +25,8 @@ const preview: Preview = {
     backgrounds: {
       default: "default",
       values: [
-        { name: "default", value: "var(--color-bg-default)" },
-        { name: "subtle", value: "var(--color-bg-subtle)" },
+        { name: "default", value: theme.colors.bg.default },
+        { name: "subtle", value: theme.colors.bg.subtle },
       ],
     },
   },

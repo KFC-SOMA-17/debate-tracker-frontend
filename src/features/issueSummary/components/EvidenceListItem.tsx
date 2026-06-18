@@ -1,7 +1,6 @@
-import { Badge } from "@/shared/ui/badge";
-import { cn } from "@/shared/lib/cn";
 import { formatEvidenceTypeLabel } from "../lib/formatEvidenceTypeLabel";
 import type { ClaimStance, Evidence } from "../types/agendaSummary";
+import { Content, EvidenceBadge, Root } from "./EvidenceListItem.styles";
 
 export type EvidenceListItemProps = {
   evidence: Evidence;
@@ -13,11 +12,11 @@ export function EvidenceListItem({ evidence, stance, className }: EvidenceListIt
   const tone = stance === "PROS" ? "pros" : "danger";
 
   return (
-    <div className={cn("flex gap-2", className)}>
-      <Badge variant="evidence" tone={tone} className="shrink-0">
+    <Root className={className}>
+      <EvidenceBadge variant="evidence" tone={tone}>
         {formatEvidenceTypeLabel(evidence.type)}
-      </Badge>
-      <p className="min-w-0 flex-1 text-sm leading-relaxed text-text-secondary">{evidence.content}</p>
-    </div>
+      </EvidenceBadge>
+      <Content>{evidence.content}</Content>
+    </Root>
   );
 }

@@ -6,11 +6,20 @@ import { ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY } from "@/features/mainDashboard/const
 import { EmptyState, LoadingState } from "@/shared/ui/feedback";
 import { Badge } from "@/shared/ui/badge";
 import { NetworkIcon } from "@/shared/ui/icons";
-import { cn } from "@/shared/lib/cn";
+import { theme } from "@/styles/theme";
 import { formatAgendaSummaryUpdatedAt } from "../lib/formatAgendaSummaryUpdatedAt";
 import { useAgendaSummaryPolling, type AgendaSummaryPollingStatus } from "../hooks/useAgendaSummaryPolling";
 import { AgendaSummaryView } from "./AgendaSummaryView";
 import { AgendaTabsSection } from "./AgendaTabsSection";
+import {
+  EmptyIconSlot,
+  Header,
+  PlaceholderCenter,
+  Root,
+  ScrollBody,
+  Title,
+  UpdatedAt,
+} from "./IssueSummaryPanel.styles";
 
 export type IssueSummaryPanelProps = {
   phase: DebateSessionPhase;
@@ -92,18 +101,16 @@ export function IssueSummaryPanel({ phase, className }: IssueSummaryPanelProps) 
   const showContent = agendas.length > 0 && activeAgenda != null && activeAgendaId != null;
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-1 flex-col overflow-hidden", className)}>
-      <div className="flex h-[52px] shrink-0 items-center justify-between gap-2 border-b border-border-default px-6">
-        <h2 className="text-sm font-medium text-text-primary">쟁점별 요약</h2>
+    <Root className={className}>
+      <Header>
+        <Title>쟁점별 요약</Title>
         {meta?.kind === "badge" ? (
           <Badge variant="status" tone={meta.tone}>
             {meta.label}
           </Badge>
         ) : null}
-        {meta?.kind === "updatedAt" ? (
-          <span className="shrink-0 text-xs tabular-nums text-text-secondary">{meta.label}</span>
-        ) : null}
-      </div>
+        {meta?.kind === "updatedAt" ? <UpdatedAt>{meta.label}</UpdatedAt> : null}
+      </Header>
 
       {showContent ? (
         <AgendaTabsSection
@@ -113,34 +120,38 @@ export function IssueSummaryPanel({ phase, className }: IssueSummaryPanelProps) 
         />
       ) : null}
 
-      <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto p-6">
+      <ScrollBody>
         {showLoading ? (
-          <div className="flex h-full min-h-0 items-center justify-center">
+          <PlaceholderCenter>
             <LoadingState title="쟁점 분석 중" description="발화 내용을 분석하고 있습니다..." />
-          </div>
+          </PlaceholderCenter>
         ) : null}
 
         {showError ? (
-          <div className="flex h-full min-h-0 items-center justify-center">
+          <PlaceholderCenter>
             <EmptyState
               title="쟁점 요약을 불러오지 못했습니다"
               description={error?.message ?? "잠시 후 다시 시도해 주세요."}
             />
-          </div>
+          </PlaceholderCenter>
         ) : null}
 
         {showEmpty ? (
-          <div className="flex h-full min-h-0 items-center justify-center">
+          <PlaceholderCenter>
             <EmptyState
-              icon={<NetworkIcon className="size-10" aria-hidden />}
+              icon={
+                <EmptyIconSlot $size={theme.sizes.icon10}>
+                  <NetworkIcon aria-hidden />
+                </EmptyIconSlot>
+              }
               title={ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY.title}
               description={ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY.description}
             />
-          </div>
+          </PlaceholderCenter>
         ) : null}
 
         {showContent ? <AgendaSummaryView agenda={activeAgenda} /> : null}
-      </div>
-    </div>
+      </ScrollBody>
+    </Root>
   );
 }

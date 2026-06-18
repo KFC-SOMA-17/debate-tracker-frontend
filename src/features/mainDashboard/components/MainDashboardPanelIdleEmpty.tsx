@@ -1,12 +1,13 @@
 import { EmptyState } from "@/shared/ui/feedback";
 import { LightbulbIcon, MessageSquareIcon } from "@/shared/ui/icons";
-import { cn } from "@/shared/lib/cn";
+import { theme } from "@/styles/theme";
 import {
   ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY,
   ISSUE_SUMMARY_PANEL_IDLE_EMPTY,
   TRANSCRIPT_PANEL_ACTIVE_EMPTY,
   TRANSCRIPT_PANEL_IDLE_EMPTY,
 } from "../constants/panelIdleEmpty";
+import { EmptyStateWrapper, IconSlot, Root } from "./MainDashboardPanelIdleEmpty.styles";
 
 export type MainDashboardPanelVariant = "idle" | "active" | "ended";
 
@@ -39,13 +40,18 @@ export function MainDashboardPanelIdleEmpty({ panel, variant = "idle", className
   const Icon = config.icon;
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-1 items-center justify-center overflow-hidden p-6 select-none", className)}>
-      <EmptyState
-        className="w-full max-w-md"
-        icon={<Icon className="size-12" aria-hidden />}
-        title={title}
-        description={description}
-      />
-    </div>
+    <Root className={className}>
+      <EmptyStateWrapper>
+        <EmptyState
+          icon={
+            <IconSlot $size={theme.sizes.icon12}>
+              <Icon aria-hidden />
+            </IconSlot>
+          }
+          title={title}
+          description={description}
+        />
+      </EmptyStateWrapper>
+    </Root>
   );
 }

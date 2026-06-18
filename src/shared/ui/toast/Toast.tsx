@@ -1,9 +1,10 @@
 import { useState, type HTMLAttributes, type ReactNode } from "react";
 import { AlertCircleIcon, CheckCircleIcon } from "@/shared/ui/icons";
-import { cn } from "@/shared/lib/cn";
+import { IconSlot } from "@/shared/ui/icons/IconSlot";
 import { ToastCloseButton } from "./ToastCloseButton";
 import { useToastTimer } from "./useToastTimer";
 import type { ToastDuration, ToastPosition, ToastVariant } from "./Toast.types";
+import { ToastContent, ToastIconSlot, ToastRoot } from "./Toast.styles";
 
 export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   variant?: ToastVariant;
@@ -14,16 +15,22 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"
   children: ReactNode;
 }
 
-const variantClasses: Record<ToastVariant, string> = {
-  default: "border-l-border-strong",
-  success: "border-l-status-success",
-  error: "border-l-status-danger",
-};
-
 const variantIcons: Record<ToastVariant, ReactNode | null> = {
   default: null,
-  success: <CheckCircleIcon className="size-5 shrink-0 text-status-success" aria-hidden />,
-  error: <AlertCircleIcon className="size-5 shrink-0 text-status-danger" aria-hidden />,
+  success: (
+    <ToastIconSlot $variant="success">
+      <IconSlot $size="1.25rem">
+        <CheckCircleIcon aria-hidden />
+      </IconSlot>
+    </ToastIconSlot>
+  ),
+  error: (
+    <ToastIconSlot $variant="error">
+      <IconSlot $size="1.25rem">
+        <AlertCircleIcon aria-hidden />
+      </IconSlot>
+    </ToastIconSlot>
+  ),
 };
 
 export function Toast({
@@ -46,30 +53,25 @@ export function Toast({
   });
 
   return (
-    <div
+    <ToastRoot
       role={isError ? "alert" : "status"}
       aria-live={isError ? "assertive" : "polite"}
       data-position={position}
+      className={className}
+      $variant={variant}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
-      onBlurCapture={event => {
+      onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
           setPaused(false);
         }
       }}
-      className={cn(
-        "pointer-events-auto flex items-center w-full min-w-[280px] max-w-[min(420px,calc(100vw-2rem))] gap-3",
-        "rounded-lg border border-border-default border-l-4 bg-bg-elevated p-4 shadow-lg",
-        "text-sm text-text-primary",
-        variantClasses[variant],
-        className
-      )}
       {...props}
     >
       {variantIcons[variant]}
-      <div className="min-w-0 flex-1">{children}</div>
+      <ToastContent>{children}</ToastContent>
       {dismissible ? <ToastCloseButton onClick={onDismiss} /> : null}
-    </div>
+    </ToastRoot>
   );
 }

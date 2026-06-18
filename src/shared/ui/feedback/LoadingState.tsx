@@ -1,5 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
-import { cn } from "@/shared/lib/cn";
+import { FeedbackRoot, LoadingDescription, LoadingSpinner, LoadingTitle } from "./Feedback.styles";
 
 export interface LoadingStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   title: ReactNode;
@@ -8,16 +8,11 @@ export interface LoadingStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 
 
 export function LoadingState({ title, description, className, ...props }: LoadingStateProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center px-6 py-12 text-center", className)} {...props}>
-      <span
-        className="mb-4 inline-block size-12 animate-spin rounded-full border-2 border-border-default border-t-accent-primary"
-        aria-hidden
-      />
+    <FeedbackRoot className={className} {...props}>
+      <LoadingSpinner aria-hidden />
 
-      <p className="text-sm font-medium text-text-primary" aria-live="polite">
-        {title}
-      </p>
-      {description ? <p className="mt-2 text-xs text-text-secondary">{description}</p> : null}
-    </div>
+      <LoadingTitle aria-live="polite">{title}</LoadingTitle>
+      {description ? <LoadingDescription>{description}</LoadingDescription> : null}
+    </FeedbackRoot>
   );
 }

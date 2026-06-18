@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 
 import { Providers } from "@/app/providers";
 import App from "./App.tsx";
-import "./index.css";
 
 async function enableMocking() {
   if (!import.meta.env.DEV) {

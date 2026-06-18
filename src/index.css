@@ -33,8 +33,10 @@
   --color-border-subtle: var(--color-base-gray-150);
   --color-border-strong: var(--color-base-gray-500);
 
-  --color-accent-primary: var(--color-base-blue-500);
-  --color-accent-secondary: var(--color-base-purple-500);
+  --color-accent-primary: var(--color-base-purple-500);
+  --color-accent-secondary: var(--color-base-blue-500);
+  --color-accent-primary-subtle: color-mix(in srgb, var(--color-base-purple-500) 20%, transparent);
+  --color-accent-primary-muted: #f5f3ff;
 
   --color-status-success: var(--color-base-green-600);
   --color-status-warning: var(--color-base-amber-600);
@@ -43,7 +45,7 @@
   --color-status-success-subtle: #f0fdf4;
   --color-status-warning-subtle: #fffbeb;
   --color-status-danger-subtle: #fef2f2;
-  --color-status-info-subtle: #eff6ff;
+  --color-status-info-subtle: var(--color-accent-primary-muted);
   --color-status-muted-subtle: var(--color-base-gray-150);
 
   /* Typography tokens */
@@ -250,5 +252,43 @@
 
   .scrollbar-hidden::-webkit-scrollbar {
     display: none;
+  }
+
+  .landing-hero-bg {
+    background: linear-gradient(
+      155deg,
+      #f8f7ff 0%,
+      #fafaff 16.67%,
+      #fbfbff 25%,
+      #fdfcff 33.33%,
+      #fefeff 41.67%,
+      #ffffff 50%,
+      #fdfeff 57.14%,
+      #fafcff 64.29%,
+      #f6faff 71.43%,
+      #f4f9ff 78.57%,
+      #f1f7ff 85.71%,
+      #eff6ff 100%
+    );
+  }
+
+  .landing-usecase-bg {
+    background: linear-gradient(
+      163deg,
+      #f5f3ff 0%,
+      #f4f4ff 16.67%,
+      #f3f4ff 33.33%,
+      #f2f5ff 50%,
+      #f1f5ff 66.67%,
+      #f0f6ff 83.33%,
+      #eff6ff 100%
+    );
+  }
+
+  .landing-hero-title-accent {
+    background: linear-gradient(90deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }

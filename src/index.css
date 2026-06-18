@@ -38,6 +38,9 @@
   --color-accent-primary-subtle: color-mix(in srgb, var(--color-base-purple-500) 20%, transparent);
   --color-accent-primary-muted: #f5f3ff;
 
+  --color-stance-pros: var(--color-base-blue-500);
+  --color-stance-pros-subtle: #eff6ff;
+
   --color-status-success: var(--color-base-green-600);
   --color-status-warning: var(--color-base-amber-600);
   --color-status-danger: var(--color-base-red-600);
@@ -45,7 +48,7 @@
   --color-status-success-subtle: #f0fdf4;
   --color-status-warning-subtle: #fffbeb;
   --color-status-danger-subtle: #fef2f2;
-  --color-status-info-subtle: var(--color-accent-primary-muted);
+  --color-status-info-subtle: #eff6ff;
   --color-status-muted-subtle: var(--color-base-gray-150);
 
   /* Typography tokens */

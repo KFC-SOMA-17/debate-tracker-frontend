@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
 
 export type BadgeVariant = "status" | "speaker" | "evidence" | "neutral";
-export type BadgeTone = "default" | "success" | "warning" | "danger" | "info" | "muted";
+export type BadgeTone = "default" | "success" | "warning" | "danger" | "info" | "pros" | "muted";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
@@ -22,7 +22,8 @@ const toneClasses: Record<BadgeTone, string> = {
   success: "bg-status-success-subtle text-status-success",
   warning: "bg-status-warning-subtle text-status-warning",
   danger: "bg-status-danger-subtle text-status-danger",
-  info: "bg-status-info-subtle text-accent-primary",
+  info: "bg-status-info-subtle text-accent-secondary",
+  pros: "bg-stance-pros-subtle text-stance-pros",
   muted: "bg-status-muted-subtle text-text-primary",
 };
 

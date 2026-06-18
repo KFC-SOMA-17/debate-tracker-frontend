@@ -94,9 +94,12 @@ useEffect(() => {
 
 ## 8. 스타일링 규칙
 
-- Tailwind CSS를 기본 스타일링 방식으로 사용한다.
-- 디자인 토큰은 Tailwind v4 `@theme inline` 기반 토큰을 우선 사용한다.
+- Emotion (`@emotion/styled`)을 기본 스타일링 방식으로 사용한다.
+- 디자인 토큰은 `src/styles/theme.ts`를 source of truth로 사용한다.
+- 컴포넌트 스타일은 `*.styles.ts`에 styled component로 분리한다.
+- variant/size 등 DOM에 전달되지 않아야 하는 prop은 transient prop(`$variant` 등)을 사용한다.
 - 색상/여백/radius/typography는 semantic token을 우선 사용한다.
+- 공통 스타일 fragment는 `src/styles/mixins.ts`에 둔다.
 - 동적 좌표/크기/transform은 inline style 허용
 
 ## 9. 테스트 규칙

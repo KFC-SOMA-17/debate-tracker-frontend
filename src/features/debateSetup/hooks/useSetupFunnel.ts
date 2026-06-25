@@ -73,7 +73,7 @@ export function useSetupFunnel() {
 
     try {
       const { debateId, topic } = await createDebate({ topic: trimmedTopic });
-      setActiveDebate(debateId);
+      setActiveDebate(debateId, topic);
       navigate(DEBATE_ROUTES.session(debateId), {
         replace: true,
         state: { topic },

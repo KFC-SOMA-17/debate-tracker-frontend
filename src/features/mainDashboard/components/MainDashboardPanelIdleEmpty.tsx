@@ -4,9 +4,8 @@ import { theme } from "@/styles/theme";
 import {
   ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY,
   ISSUE_SUMMARY_PANEL_IDLE_EMPTY,
-  TRANSCRIPT_PANEL_ACTIVE_EMPTY,
-  TRANSCRIPT_PANEL_IDLE_EMPTY,
-} from "../constants/panelIdleEmpty";
+} from "@/features/issueSummary/constants/panelEmpty";
+import { TRANSCRIPT_PANEL_ACTIVE_EMPTY, TRANSCRIPT_PANEL_IDLE_EMPTY } from "../constants/panelIdleEmpty";
 import { EmptyStateWrapper, IconSlot, Root } from "./MainDashboardPanelIdleEmpty.styles";
 
 export type MainDashboardPanelVariant = "idle" | "active" | "ended";

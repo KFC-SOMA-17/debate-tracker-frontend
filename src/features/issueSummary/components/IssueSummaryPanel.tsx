@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useMatch } from "react-router-dom";
 import { DEBATE_SESSION_MATCH } from "@/app/router";
 import type { DebateSessionPhase } from "@/app/layouts/DebateSessionLayoutContext";
-import { ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY } from "@/features/mainDashboard/constants/panelIdleEmpty";
+import { ISSUE_SUMMARY_PANEL_ACTIVE_EMPTY } from "@/features/issueSummary/constants/panelEmpty";
 import { EmptyState, LoadingState } from "@/shared/ui/feedback";
 import { Badge } from "@/shared/ui/badge";
 import { NetworkIcon } from "@/shared/ui/icons";

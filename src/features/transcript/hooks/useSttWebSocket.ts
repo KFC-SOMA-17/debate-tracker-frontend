@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createSttStompClient, type SttStompClient } from "../api/sttStompClient";
 import {
+  clearPcmBuffer,
+  drainPcmBuffer,
+  pushPcmChunk,
+} from "../lib/pcmSendBuffer";
+import {
   computeReconnectDelayMs,
   STOMP_RECONNECT_ATTEMPTS,
   waitMs,
@@ -16,6 +21,7 @@ export type SttConnectionStatus =
   | "connecting"
   | "ready"
   | "recording"
+  | "disconnected"
   | "reconnecting"
   | "stopping"
   | "ended"
@@ -26,6 +32,19 @@ const CONNECTION_UNAVAILABLE_ERROR: SttErrorData = {
   status: 503,
   message: "STT 서버와 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.",
 };
+
+const STOMP_LOG_PREFIX = "[STOMP]";
+
+const PCM_CAPTURE_STATUSES: SttConnectionStatus[] = [
+  "recording",
+  "ready",
+  "disconnected",
+  "reconnecting",
+];
+
+function canCapturePcm(status: SttConnectionStatus, wasRecording: boolean): boolean {
+  return wasRecording && PCM_CAPTURE_STATUSES.includes(status);
+}
 
 export type UseSttWebSocketOptions = {
   /** REST·라우트 debateId — destination 경로에 사용 */
@@ -51,6 +70,8 @@ export type UseSttWebSocketResult = {
   /** DEBATE_START 수신 시각(ms) */
   debateStartedAt: number | null;
   canSendAudio: boolean;
+  /** recording 또는 (재연결 중이면서 녹음 세션 유지) */
+  shouldCaptureAudio: boolean;
   lastError: SttErrorData | null;
   connect: () => void;
   disconnect: () => void;
@@ -67,6 +88,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   );
   const [debateStartedAt, setDebateStartedAt] = useState<number | null>(null);
   const [lastError, setLastError] = useState<SttErrorData | null>(null);
+  const [wasRecording, setWasRecording] = useState(false);
 
   const clientRef = useRef<SttStompClient | null>(null);
   const callbacksRef = useRef({ onMessage, onReady, onEnded, onError });
@@ -82,6 +104,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const reconnectAbortRef = useRef<AbortController | null>(null);
   const intentionalDisconnectRef = useRef(false);
   const connectPromiseResolveRef = useRef<(() => void) | null>(null);
+  const pcmBufferRef = useRef<ArrayBuffer[]>([]);
 
   useEffect(() => {
     sessionDebateIdRef.current = sessionDebateId;
@@ -93,11 +116,36 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
   useEffect(() => {
     statusRef.current = status;
+    console.info(`${STOMP_LOG_PREFIX} status changed`, {
+      status,
+      sessionDebateId: sessionDebateIdRef.current,
+      debateId: debateIdRef.current,
+    });
   }, [status]);
 
   useEffect(() => {
     callbacksRef.current = { onMessage, onReady, onEnded, onError };
   }, [onMessage, onReady, onEnded, onError]);
+
+  const updateWasRecording = useCallback((value: boolean) => {
+    wasRecordingRef.current = value;
+    setWasRecording(value);
+  }, []);
+
+  const flushPcmBufferIfNeeded = useCallback(() => {
+    const client = clientRef.current;
+    const activeDebateId = debateIdRef.current;
+    if (client == null || !client.isConnected() || activeDebateId == null) {
+      return;
+    }
+    if (pcmBufferRef.current.length === 0) {
+      return;
+    }
+
+    drainPcmBuffer(pcmBufferRef.current, chunk => {
+      client.sendPcm(activeDebateId, chunk);
+    });
+  }, []);
 
   const notifySessionEnded = useCallback(() => {
     if (sessionEndNotifiedRef.current) {
@@ -106,10 +154,11 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     sessionEndNotifiedRef.current = true;
     stopRequestedRef.current = false;
     receiveBlockedRef.current = false;
-    wasRecordingRef.current = false;
+    updateWasRecording(false);
+    clearPcmBuffer(pcmBufferRef.current);
     setStatus("ended");
     callbacksRef.current.onEnded?.();
-  }, []);
+  }, [updateWasRecording]);
 
   const resolveConnectWaiter = useCallback(() => {
     connectPromiseResolveRef.current?.();
@@ -157,9 +206,9 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
           pendingStopDebateIdRef.current = null;
           debateIdRef.current = message.debateId;
           setDebateId(message.debateId);
-          setDebateStartedAt(Date.now());
+          setDebateStartedAt(prev => prev ?? Date.now());
           setLastError(null);
-          wasRecordingRef.current = true;
+          updateWasRecording(true);
           statusRef.current = "recording";
           setStatus("recording");
           callbacksRef.current.onReady?.(
@@ -186,7 +235,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
           break;
       }
     },
-    [notifySessionEnded],
+    [notifySessionEnded, updateWasRecording],
   );
 
   const subscribeAndStart = useCallback(() => {
@@ -194,12 +243,20 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     const activeDebateId =
       debateIdRef.current ?? parseNumericDebateId(sessionDebateIdRef.current);
     if (client == null || activeDebateId == null) {
-      console.warn("[useSttWebSocket] subscribe skipped: client or debateId unavailable");
+      console.warn(`${STOMP_LOG_PREFIX} subscribe skipped: client or debateId unavailable`, {
+        hasClient: client != null,
+        activeDebateId,
+        sessionDebateId: sessionDebateIdRef.current,
+      });
       setStatus("error");
       return;
     }
 
-    client.subscribeTopic(activeDebateId, message => {
+    console.info(`${STOMP_LOG_PREFIX} subscribeAndStart`, { activeDebateId });
+
+    flushPcmBufferIfNeeded();
+
+    client.subscribeChannel(activeDebateId, message => {
       if (
         receiveBlockedRef.current &&
         message.type !== "DEBATE_END" &&
@@ -218,16 +275,15 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     }
 
     if (wasRecordingRef.current) {
-      statusRef.current = "recording";
-      setStatus("recording");
-      return;
+      console.info(`${STOMP_LOG_PREFIX} resuming session after reconnect`, { activeDebateId });
     }
 
     setStatus("ready");
     client.sendStart(activeDebateId);
-  }, [handleServerMessage]);
+  }, [flushPcmBufferIfNeeded, handleServerMessage]);
 
   const runReconnectLoop = useCallback(async () => {
+    console.warn(`${STOMP_LOG_PREFIX} reconnect loop started`);
     reconnectAbortRef.current?.abort();
     const abortController = new AbortController();
     reconnectAbortRef.current = abortController;
@@ -248,12 +304,18 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       reconnectAttemptRef.current = attempt + 1;
       statusRef.current = "reconnecting";
       setStatus("reconnecting");
+      console.info(`${STOMP_LOG_PREFIX} reconnect attempt`, {
+        attempt: reconnectAttemptRef.current,
+        delayMs,
+        connectTimeoutMs,
+      });
 
       intentionalDisconnectRef.current = false;
       clientRef.current?.activate();
 
       const connected = await waitForConnect(connectTimeoutMs, abortController.signal);
       if (connected) {
+        console.info(`${STOMP_LOG_PREFIX} reconnect succeeded`, { attempt: reconnectAttemptRef.current });
         reconnectAttemptRef.current = 0;
         subscribeAndStart();
         resolveConnectWaiter();
@@ -268,6 +330,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     }
 
     reconnectAttemptRef.current = 0;
+    console.error(`${STOMP_LOG_PREFIX} reconnect exhausted`);
+    clearPcmBuffer(pcmBufferRef.current);
     setLastError(CONNECTION_UNAVAILABLE_ERROR);
     setStatus("error");
     callbacksRef.current.onError?.(CONNECTION_UNAVAILABLE_ERROR);
@@ -280,7 +344,13 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     const client = createSttStompClient({
       onConnect: () => {
+        console.info(`${STOMP_LOG_PREFIX} onConnect handler`, {
+          status: statusRef.current,
+          sessionDebateId: sessionDebateIdRef.current,
+          debateId: debateIdRef.current,
+        });
         resolveConnectWaiter();
+        flushPcmBufferIfNeeded();
 
         if (statusRef.current === "reconnecting") {
           return;
@@ -296,6 +366,11 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
         }
       },
       onWebSocketClose: () => {
+        console.warn(`${STOMP_LOG_PREFIX} onWebSocketClose handler`, {
+          status: statusRef.current,
+          intentionalDisconnect: intentionalDisconnectRef.current,
+          stopRequested: stopRequestedRef.current,
+        });
         if (intentionalDisconnectRef.current) {
           return;
         }
@@ -315,9 +390,19 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
           return;
         }
 
+        if (wasRecordingRef.current) {
+          statusRef.current = "disconnected";
+          setStatus("disconnected");
+        }
+
         void runReconnectLoop();
       },
-      onStompError: () => {
+      onStompError: frame => {
+        console.error(`${STOMP_LOG_PREFIX} onStompError handler`, {
+          status: statusRef.current,
+          headers: frame.headers,
+          body: frame.body,
+        });
         if (statusRef.current !== "stopping" && statusRef.current !== "ended") {
           setStatus("error");
         }
@@ -326,9 +411,12 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     clientRef.current = client;
     return client;
-  }, [notifySessionEnded, resolveConnectWaiter, runReconnectLoop, subscribeAndStart]);
+  }, [flushPcmBufferIfNeeded, notifySessionEnded, resolveConnectWaiter, runReconnectLoop, subscribeAndStart]);
 
   const connect = useCallback(() => {
+    console.info(`${STOMP_LOG_PREFIX} connect requested`, {
+      sessionDebateId: sessionDebateIdRef.current,
+    });
     reconnectAbortRef.current?.abort();
     reconnectAbortRef.current = null;
     reconnectAttemptRef.current = 0;
@@ -341,7 +429,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
     sessionEndNotifiedRef.current = false;
     stopRequestedRef.current = false;
     pendingStopDebateIdRef.current = null;
-    wasRecordingRef.current = false;
+    updateWasRecording(false);
+    clearPcmBuffer(pcmBufferRef.current);
 
     const parsedDebateId = parseNumericDebateId(sessionDebateIdRef.current);
     debateIdRef.current = parsedDebateId;
@@ -352,9 +441,12 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     const client = ensureClient();
     client.activate();
-  }, [ensureClient]);
+  }, [ensureClient, updateWasRecording]);
 
   const disconnect = useCallback(() => {
+    console.info(`${STOMP_LOG_PREFIX} disconnect requested`, {
+      status: statusRef.current,
+    });
     reconnectAbortRef.current?.abort();
     reconnectAbortRef.current = null;
     intentionalDisconnectRef.current = true;
@@ -364,7 +456,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     receiveBlockedRef.current = false;
     stopRequestedRef.current = false;
-    wasRecordingRef.current = false;
+    updateWasRecording(false);
+    clearPcmBuffer(pcmBufferRef.current);
     debateIdRef.current = parseNumericDebateId(sessionDebateIdRef.current);
 
     setStatus(current => {
@@ -374,7 +467,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       }
       return current;
     });
-  }, []);
+  }, [updateWasRecording]);
 
   const stopDebate = useCallback(() => {
     const activeDebateId =
@@ -387,7 +480,8 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     receiveBlockedRef.current = true;
     stopRequestedRef.current = true;
-    wasRecordingRef.current = false;
+    updateWasRecording(false);
+    clearPcmBuffer(pcmBufferRef.current);
     setStatus("stopping");
 
     const sendStopOnce = () => {
@@ -417,20 +511,25 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
       }
     }, 100);
     window.setTimeout(() => window.clearInterval(retryTimer), 5_000);
-  }, [ensureClient, notifySessionEnded]);
+  }, [ensureClient, notifySessionEnded, updateWasRecording]);
 
   const sendPcm = useCallback((buffer: ArrayBuffer) => {
-    if (statusRef.current !== "recording" || receiveBlockedRef.current) {
+    const canAcceptPcm =
+      !receiveBlockedRef.current && canCapturePcm(statusRef.current, wasRecordingRef.current);
+
+    if (!canAcceptPcm) {
       return;
     }
 
     const activeDebateId = debateIdRef.current;
     const client = clientRef.current;
-    if (activeDebateId == null || client == null || !client.isConnected()) {
+
+    if (client?.isConnected() && activeDebateId != null) {
+      client.sendPcm(activeDebateId, buffer);
       return;
     }
 
-    client.sendPcm(activeDebateId, buffer);
+    pushPcmChunk(pcmBufferRef.current, buffer);
   }, []);
 
   useEffect(() => {
@@ -461,12 +560,15 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
   const debateIdString =
     resolvedDebateId != null ? normalizeDebateIdToString(resolvedDebateId) : null;
 
+  const shouldCaptureAudio = canCapturePcm(status, wasRecording);
+
   return {
     status,
     debateId: resolvedDebateId,
     debateIdString,
     debateStartedAt,
     canSendAudio: status === "recording",
+    shouldCaptureAudio,
     lastError,
     connect,
     disconnect,

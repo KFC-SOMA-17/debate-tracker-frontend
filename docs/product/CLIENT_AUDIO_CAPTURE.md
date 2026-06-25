@@ -259,7 +259,7 @@ API 확정 전에도 클라이언트는 chunk마다 다음을 함께 다룰 수 
 | STT | 서버(또는 클라우드 API)에서 PCM chunk를 텍스트로 변환 |
 | Partial 발화 | STT가 아직 확정하지 않은 중간 인식 결과 |
 | Final 발화 | STT가 확정한 발화 |
-| 실시간 속기록 | partial/final 텍스트를 UI에 표시 ([SCREEN_SPEC.md](./SCREEN_SPEC.md)) |
+| 실시간 속기록 | partial/final 텍스트를 UI에 표시 ([REQUIREMENTS.md](./REQUIREMENTS.md)) |
 
 ---
 

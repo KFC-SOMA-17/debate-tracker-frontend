@@ -8,6 +8,7 @@ import {
   selectOrderedSegments,
   transcriptRecordReducer,
 } from "../lib/transcriptRecordReducer";
+import { shouldClearTranscriptOnDebateStart } from "../lib/shouldClearTranscriptOnDebateStart";
 import { initialTranscriptRecordState } from "../types/transcriptRecord";
 import type { RefinedSegments, SttErrorData, TranscriptionSegment } from "../types/sttMessages";
 import { normalizeDebateIdToString } from "../types/sttMessages";
@@ -30,6 +31,7 @@ export type UseTranscriptSessionResult = {
   debateStartedAt: number | null;
   lastError: SttErrorData | null;
   canSendAudio: boolean;
+  shouldCaptureAudio: boolean;
   sendPcm: (buffer: ArrayBuffer) => void;
   stopDebate: () => void;
 };
@@ -42,19 +44,29 @@ export function useTranscriptSession({
 }: UseTranscriptSessionOptions): UseTranscriptSessionResult {
   const [record, dispatch] = useReducer(transcriptRecordReducer, initialTranscriptRecordState);
   const onSessionEndedRef = useRef(onSessionEnded);
+  const sessionInitializedRef = useRef(false);
 
   useEffect(() => {
     onSessionEndedRef.current = onSessionEnded;
   }, [onSessionEnded]);
 
+  useEffect(() => {
+    sessionInitializedRef.current = false;
+    dispatch({ type: "CLEAR" });
+  }, [sessionDebateId]);
+
   const handleMessage = useCallback((message: import("../types/sttMessages").SttWebSocketMessage) => {
     pushTranscriptEvent(message);
 
     switch (message.type) {
-      case "DEBATE_START":
-        dispatch({ type: "CLEAR" });
-        resetTranscriptEventLog(normalizeDebateIdToString(message.debateId));
+      case "DEBATE_START": {
+        if (shouldClearTranscriptOnDebateStart(sessionInitializedRef.current)) {
+          dispatch({ type: "CLEAR" });
+          resetTranscriptEventLog(normalizeDebateIdToString(message.debateId));
+        }
+        sessionInitializedRef.current = true;
         break;
+      }
       case "TRANSCRIPTION":
         dispatch({ type: "APPEND_TRANSCRIPTION", segment: message.data as TranscriptionSegment });
         break;
@@ -73,7 +85,7 @@ export function useTranscriptSession({
     onSessionEndedRef.current?.();
   }, []);
 
-  const { status, debateStartedAt, lastError, canSendAudio, connect, disconnect, stopDebate, sendPcm } =
+  const { status, debateStartedAt, lastError, canSendAudio, shouldCaptureAudio, connect, disconnect, stopDebate, sendPcm } =
     useSttWebSocket({
     sessionDebateId,
     onMessage: handleMessage,
@@ -109,6 +121,7 @@ export function useTranscriptSession({
     debateStartedAt,
     lastError,
     canSendAudio,
+    shouldCaptureAudio,
     sendPcm,
     stopDebate,
   };

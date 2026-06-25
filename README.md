@@ -130,6 +130,8 @@ pnpm test:storybook
 | `pnpm install` 중 엔진 오류 | `node -v`가 20 미만이면 Node.js 업그레이드 |
 | `pnpm` 버전이 9.15.9가 아님 | `corepack enable` 후 프로젝트 루트에서 다시 `pnpm install` |
 | 포트 5173 사용 중 | 다른 Vite/개발 서버 종료 후 재실행, 또는 Vite가 안내하는 다른 포트 사용 |
+| 실제 백엔드를 붙였는데 mock 응답이 옴 | dev에서는 MSW가 활성화되어 있습니다. `src/mocks/handlers.ts`에 정의된 경로는 mock이 가로챕니다. 실제 응답을 보려면 해당 핸들러를 제거하거나, 정의되지 않은 경로는 `vite.config.ts`의 `/api`·`/ws` 프록시(→ `localhost:8080`)로 전달됩니다 |
+| API/WebSocket 연결이 안 됨 | 백엔드가 `http://localhost:8080`에서 떠 있는지, `vite.config.ts` 프록시 대상과 일치하는지 확인 |
 
 ### 빌드
 
@@ -145,22 +147,64 @@ pnpm test:run
 pnpm test:e2e
 ```
 
+## 코드 둘러보기 & 첫 변경
+
+프론트엔드가 처음이라면, 아래 순서로 코드를 파악한 뒤 작은 변경으로 흐름을 익히세요.
+
+### 어디부터 보나 (코드 지도)
+
+```text
+src/
+├─ app/        # 앱 부트스트랩: providers, router(/, /setup, /debates/:id), 세션 레이아웃
+├─ pages/      # 라우트별 화면 조합 (landing, debateSetup, mainDashboard) — 얇은 층
+├─ features/   # 도메인 기능 (debate, debateSetup, transcript, issueSummary, audioCapture, mainDashboard)
+├─ shared/     # 공통 UI(shared/ui), API 클라이언트(shared/api), 전역 store(shared/store)
+└─ styles/     # 디자인 토큰(theme.ts), 전역 스타일
+```
+
+- 진입점은 `src/main.tsx` → `src/app/providers.tsx` → `src/app/router.tsx` 순서입니다.
+- 한 기능이 어떻게 동작하는지 보려면 해당 `features/<name>/` 폴더 하나만 보면 됩니다(api/hooks/components/lib).
+- 전체 그림과 데이터 흐름은 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), 규칙은 [docs/frontend/CODE_CONVENTION.md](docs/frontend/CODE_CONVENTION.md)를 보세요.
+
+### 첫 변경 실습
+
+작은 변경 하나로 "수정 → 확인 → 검증" 루프를 익혀 보세요.
+
+1. `pnpm dev`로 개발 서버를 띄우고 브라우저에서 랜딩(`/`)을 엽니다.
+2. 랜딩 문구를 한 곳 바꿔 봅니다. 텍스트는 `src/pages/landing/` 안의 컴포넌트(또는 `landingContent.ts`)에 있습니다.
+3. 저장하면 브라우저가 자동 갱신(HMR)됩니다. 변경이 반영됐는지 확인합니다.
+4. 검증 명령을 돌립니다.
+
+```bash
+pnpm typecheck && pnpm lint && pnpm test:run
+```
+
+5. 통과하면 의미 단위로 작게 커밋합니다.
+
+### 알아두면 좋은 용어
+
+핵심 도메인 용어와 코드 식별자 매핑은 [요구사항 문서의 용어집](docs/product/REQUIREMENTS.md#3-용어집-도메인--코드)에 있습니다. 요약: 음성=`audio`, 주제=`topic`, 쟁점=`agenda`, 주장=`claim`, 근거=`evidence`, 미확정/확정 발화=`partial`/`final`.
+
 ## 관련 문서
+
+### AI 에이전트 (먼저 읽기)
+
+- [AGENTS.md](AGENTS.md) — 프로젝트 가드레일 + 어떤 작업에 어떤 문서를 읽을지 라우팅하는 허브
+- [CLAUDE.md](CLAUDE.md) — Claude Code용 진입점 (AGENTS.md를 가리킴)
+- [에이전트 작업 방식](docs/AGENT_WORKFLOW.md) — 툴 무관 표준 작업 절차
 
 ### Product
 
-- [요구사항](docs/product/REQUIREMENTS.md)
-- [화면 명세](docs/product/SCREEN_SPEC.md)
+- [요구사항](docs/product/REQUIREMENTS.md) — 제품 개요·화면·핵심 흐름
 - [클라이언트 음성 입력 및 전처리](docs/product/CLIENT_AUDIO_CAPTURE.md)
 
-### Design
+### Frontend
 
-- [디자인 가이드](docs/design/DESIGN.md)
-- [디자인 스킬](docs/design/SKILL.md)
-- [Figma MCP 매뉴얼](docs/figma-mcp-manual.md)
-- [공통 컴포넌트 인벤토리](docs/design/components/README.md)
+- [코드 컨벤션](docs/frontend/CODE_CONVENTION.md) — 폴더 구조, React 19 규칙, 용어집, 네이밍
+- [아키텍처](docs/ARCHITECTURE.md) — 레이어·데이터 흐름·알려진 복잡도
+- [Git 컨벤션](docs/GIT_CONVENTION.md) — 브랜치·커밋·PR·CI 규칙
 
-### UI 개발
+### UI 개발 (선택)
 
 ```bash
 pnpm storybook      # 공통 컴포넌트 Storybook (http://localhost:6006)
@@ -172,11 +216,6 @@ Chromatic 배포는 `CHROMATIC_PROJECT_TOKEN` 환경 변수를 사용합니다. 
 - 로컬: 프로젝트 루트 `.env`에 `CHROMATIC_PROJECT_TOKEN=...` 설정 후 `pnpm chromatic` (`dotenv-cli`가 `.env`를 읽어 chromatic에 전달)
 - 이미 셸에 `export CHROMATIC_PROJECT_TOKEN=...` 되어 있으면 `.env` 없이도 동작하며, dotenv는 기존 값을 덮어쓰지 않음
 - CI: GitHub **Settings → Secrets → Actions**에 `CHROMATIC_PROJECT_TOKEN` 등록
-
-### Frontend Conventions
-
-- [코드 컨벤션](docs/frontend/CODE_CONVENTION.md)
-- [아이콘 컨벤션](docs/frontend/ICON_CONVENTION.md)
 
 ## 문서 운영 규칙
 

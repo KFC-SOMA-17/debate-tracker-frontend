@@ -1,11 +1,10 @@
 import { ApiError } from "./errors";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+import { resolveApiUrl } from "./resolveApiUrl";
 
 export { ApiError, type ApiErrorBody, isApiErrorBody } from "./errors";
 
 export async function apiClient<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = `${API_BASE_URL}${path}`;
+  const url = resolveApiUrl(path);
   const response = await fetch(url, {
     ...init,
     headers: {

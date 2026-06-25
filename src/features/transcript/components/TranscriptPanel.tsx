@@ -5,12 +5,19 @@ import { MessageSquareIcon } from "@/shared/ui/icons";
 import { theme } from "@/styles/theme";
 import { useMemo } from "react";
 import { groupSegmentsBySpeaker } from "../lib/groupSegmentsBySpeaker";
+import {
+  getTranscriptConnectionPresentation,
+  shouldShowTranscriptConnectionBanner,
+} from "../lib/transcriptConnectionPresentation";
 import { useTranscriptPanelScroll } from "../hooks/useTranscriptPanelScroll";
 import type { SttConnectionStatus } from "../hooks/useSttWebSocket";
 import type { SttErrorData, TranscriptionSegment } from "../types/sttMessages";
 import { TranscriptNewUtterancesButton } from "./TranscriptNewUtterancesButton";
 import { TranscriptUtteranceCard } from "./TranscriptUtteranceCard";
 import {
+  ConnectionBanner,
+  ConnectionBannerDescription,
+  ConnectionBannerTitle,
   ContentArea,
   EmptyIconSlot,
   FloatingButtonWrapper,
@@ -31,32 +38,11 @@ export type TranscriptPanelProps = {
   className?: string;
 };
 
-function connectionBadge(sttStatus: SttConnectionStatus, phase: DebateSessionPhase): { label: string; tone: "info" | "success" | "warning" | "danger" | "muted" } | null {
-  if (phase === "ended" || sttStatus === "ended") {
-    return { label: "토론 종료", tone: "muted" };
-  }
-  switch (sttStatus) {
-    case "connecting":
-    case "ready":
-      return { label: "STT 연결 중", tone: "info" };
-    case "reconnecting":
-      return { label: "재연결 중", tone: "warning" };
-    case "recording":
-      return { label: "실시간 수신", tone: "success" };
-    case "stopping":
-      return { label: "종료 처리 중", tone: "warning" };
-    case "error":
-      return { label: "연결 오류", tone: "danger" };
-    default:
-      return null;
-  }
-}
-
 export function TranscriptPanel({ phase, segments, sttStatus, lastError, className }: TranscriptPanelProps) {
-  const badge = connectionBadge(sttStatus, phase);
+  const presentation = getTranscriptConnectionPresentation(sttStatus, phase, lastError);
+  const showConnectionBanner = shouldShowTranscriptConnectionBanner(sttStatus, phase);
   const isConnecting = sttStatus === "connecting" || sttStatus === "ready";
-  const isReconnecting = sttStatus === "reconnecting";
-  const showLoading = (isConnecting || isReconnecting) && segments.length === 0;
+  const showLoading = isConnecting && segments.length === 0;
   const showEmpty =
     !showLoading && segments.length === 0 && sttStatus !== "error" && phase === "active";
   const showError = sttStatus === "error" && segments.length === 0;
@@ -79,25 +65,28 @@ export function TranscriptPanel({ phase, segments, sttStatus, lastError, classNa
     <Root className={className}>
       <Header>
         <Title>실시간 속기록</Title>
-        {badge ? (
-          <Badge variant="status" tone={badge.tone}>
-            {badge.label}
+        {presentation ? (
+          <Badge variant="status" tone={presentation.badgeTone}>
+            {presentation.badgeLabel}
           </Badge>
         ) : null}
       </Header>
 
       <ContentArea>
+        {showConnectionBanner && presentation ? (
+          <ConnectionBanner $tone={presentation.bannerTone} role="status" aria-live="polite">
+            <ConnectionBannerTitle>{presentation.bannerTitle}</ConnectionBannerTitle>
+            <ConnectionBannerDescription>{presentation.bannerDescription}</ConnectionBannerDescription>
+          </ConnectionBanner>
+        ) : null}
+
         <ScrollList ref={listRef} onScroll={handleScroll}>
           {showPlaceholder ? (
             <PlaceholderCenter>
               {showLoading ? (
                 <LoadingState
-                  title={isReconnecting ? "속기록 재연결 중" : "속기록 연결 중"}
-                  description={
-                    isReconnecting
-                      ? "네트워크 연결을 복구하고 있습니다..."
-                      : "STT 서버와 연결하고 있습니다..."
-                  }
+                  title="속기록 연결 중"
+                  description="STT 서버와 연결하고 있습니다..."
                 />
               ) : null}
               {showError ? (

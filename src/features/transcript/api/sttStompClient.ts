@@ -6,6 +6,12 @@ import {
   debateTopicDestination,
 } from "./stompDestinations";
 import { getStompBrokerUrl } from "./getStompBrokerUrl";
+import {
+  logStompReceive,
+  logStompReceiveParseFailure,
+  logStompSend,
+  resetStompTrafficLogger,
+} from "../lib/stompTrafficLogger";
 import { parseSttWebSocketMessage, type SttWebSocketMessage } from "../types/sttMessages";
 
 export type SttStompClientHandlers = {
@@ -30,30 +36,48 @@ export type SttStompClient = {
 };
 
 const STOMP_HEARTBEAT_MS = 2_000;
+const STOMP_LOG_PREFIX = "[STOMP]";
 
 export function createSttStompClient(handlers: SttStompClientHandlers = {}): SttStompClient {
   let topicSubscription: StompSubscription | null = null;
+  const brokerURL = getStompBrokerUrl();
+
+  console.info(`${STOMP_LOG_PREFIX} creating client`, { brokerURL });
 
   const client = new Client({
-    brokerURL: getStompBrokerUrl(),
+    brokerURL,
     reconnectDelay: 0,
     heartbeatIncoming: STOMP_HEARTBEAT_MS,
     heartbeatOutgoing: STOMP_HEARTBEAT_MS,
+    debug: message => {
+      console.debug(`${STOMP_LOG_PREFIX} protocol`, message);
+    },
   });
 
-  client.onConnect = () => {
+  client.onConnect = frame => {
+    console.info(`${STOMP_LOG_PREFIX} connected`, { headers: frame.headers });
     handlers.onConnect?.();
   };
 
   client.onDisconnect = () => {
+    console.info(`${STOMP_LOG_PREFIX} disconnected`);
     handlers.onDisconnect?.();
   };
 
   client.onWebSocketClose = event => {
+    console.warn(`${STOMP_LOG_PREFIX} WebSocket closed`, {
+      code: event.code,
+      reason: event.reason,
+      wasClean: event.wasClean,
+    });
     handlers.onWebSocketClose?.(event);
   };
 
   client.onStompError = frame => {
+    console.error(`${STOMP_LOG_PREFIX} broker error`, {
+      headers: frame.headers,
+      body: frame.body,
+    });
     handlers.onStompError?.(frame);
   };
 
@@ -63,11 +87,14 @@ export function createSttStompClient(handlers: SttStompClientHandlers = {}): Stt
 
   return {
     activate() {
+      console.info(`${STOMP_LOG_PREFIX} activate requested`, { active: client.active, connected: client.connected });
       if (!client.active) {
         client.activate();
       }
     },
     deactivate() {
+      console.info(`${STOMP_LOG_PREFIX} deactivate requested`, { active: client.active, connected: client.connected });
+      resetStompTrafficLogger();
       topicSubscription?.unsubscribe();
       topicSubscription = null;
       if (client.active) {
@@ -79,18 +106,31 @@ export function createSttStompClient(handlers: SttStompClientHandlers = {}): Stt
     },
     subscribeTopic(debateId, onMessage) {
       if (!ensureConnected()) {
+        console.warn(`${STOMP_LOG_PREFIX} subscribe skipped: not connected`, { debateId });
         return null;
       }
 
+      const destination = debateTopicDestination(debateId);
+      console.info(`${STOMP_LOG_PREFIX} subscribing`, { debateId, destination });
+
       topicSubscription?.unsubscribe();
       topicSubscription = client.subscribe(debateTopicDestination(debateId), frame => {
+        logStompReceive({
+          destination: frame.headers.destination,
+          headers: frame.headers as Record<string, string>,
+          body: frame.body,
+          binaryBody: frame.binaryBody,
+        });
+
         if (frame.body == null || frame.body === "") {
           return;
         }
         const parsed = parseSttWebSocketMessage(frame.body);
         if (parsed) {
           onMessage(parsed);
+          return;
         }
+        logStompReceiveParseFailure(frame.body, frame.headers.destination);
       });
 
       return topicSubscription;
@@ -101,19 +141,27 @@ export function createSttStompClient(handlers: SttStompClientHandlers = {}): Stt
     },
     sendStart(debateId) {
       if (!ensureConnected()) {
+        console.warn(`${STOMP_LOG_PREFIX} sendStart skipped: not connected`, { debateId });
         return;
       }
+      const destination = debateStartDestination(debateId);
+      console.info(`${STOMP_LOG_PREFIX} sendStart`, { debateId, destination });
+      logStompSend({ destination, body: "{}" });
       client.publish({
-        destination: debateStartDestination(debateId),
+        destination,
         body: "{}",
       });
     },
     sendStop(debateId) {
       if (!ensureConnected()) {
+        console.warn(`${STOMP_LOG_PREFIX} sendStop skipped: not connected`, { debateId });
         return;
       }
+      const destination = debateStopDestination(debateId);
+      console.info(`${STOMP_LOG_PREFIX} sendStop`, { debateId, destination });
+      logStompSend({ destination, body: "{}" });
       client.publish({
-        destination: debateStopDestination(debateId),
+        destination,
         body: "{}",
       });
     },

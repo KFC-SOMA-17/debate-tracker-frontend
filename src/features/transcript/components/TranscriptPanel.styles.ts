@@ -31,13 +31,35 @@ export const Title = styled.h2`
 
 export const ContentArea = styled.div`
   position: relative;
+  display: flex;
   min-height: 0;
   flex: 1;
+  flex-direction: column;
+`;
+
+export const ConnectionBanner = styled.div<{ $tone: "warning" | "danger" }>`
+  flex-shrink: 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border.default};
+  background-color: ${({ theme, $tone }) =>
+    $tone === "danger" ? theme.colors.status.dangerSubtle : theme.colors.status.warningSubtle};
+  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[6]};
+`;
+
+export const ConnectionBannerTitle = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+export const ConnectionBannerDescription = styled.p`
+  margin-top: ${({ theme }) => theme.spacing[1]};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.text.secondary};
 `;
 
 export const ScrollList = styled.div`
-  height: 100%;
   min-height: 0;
+  flex: 1;
   overflow-y: auto;
   ${hideScrollbar}
 `;

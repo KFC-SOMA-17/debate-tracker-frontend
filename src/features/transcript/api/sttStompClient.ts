@@ -1,9 +1,9 @@
 import { Client, type IFrame, type StompSubscription } from "@stomp/stompjs";
 import {
   debateAudioDestination,
+  debateChannelDestination,
   debateStartDestination,
   debateStopDestination,
-  debateTopicDestination,
 } from "./stompDestinations";
 import { getStompBrokerUrl } from "./getStompBrokerUrl";
 import {
@@ -25,7 +25,7 @@ export type SttStompClient = {
   activate: () => void;
   deactivate: () => void;
   isConnected: () => boolean;
-  subscribeTopic: (
+  subscribeChannel: (
     debateId: number,
     onMessage: (message: SttWebSocketMessage) => void,
   ) => StompSubscription | null;
@@ -39,7 +39,7 @@ const STOMP_HEARTBEAT_MS = 2_000;
 const STOMP_LOG_PREFIX = "[STOMP]";
 
 export function createSttStompClient(handlers: SttStompClientHandlers = {}): SttStompClient {
-  let topicSubscription: StompSubscription | null = null;
+  let channelSubscription: StompSubscription | null = null;
   const brokerURL = getStompBrokerUrl();
 
   console.info(`${STOMP_LOG_PREFIX} creating client`, { brokerURL });
@@ -95,8 +95,8 @@ export function createSttStompClient(handlers: SttStompClientHandlers = {}): Stt
     deactivate() {
       console.info(`${STOMP_LOG_PREFIX} deactivate requested`, { active: client.active, connected: client.connected });
       resetStompTrafficLogger();
-      topicSubscription?.unsubscribe();
-      topicSubscription = null;
+      channelSubscription?.unsubscribe();
+      channelSubscription = null;
       if (client.active) {
         client.deactivate();
       }
@@ -104,17 +104,17 @@ export function createSttStompClient(handlers: SttStompClientHandlers = {}): Stt
     isConnected() {
       return client.connected;
     },
-    subscribeTopic(debateId, onMessage) {
+    subscribeChannel(debateId, onMessage) {
       if (!ensureConnected()) {
         console.warn(`${STOMP_LOG_PREFIX} subscribe skipped: not connected`, { debateId });
         return null;
       }
 
-      const destination = debateTopicDestination(debateId);
+      const destination = debateChannelDestination(debateId);
       console.info(`${STOMP_LOG_PREFIX} subscribing`, { debateId, destination });
 
-      topicSubscription?.unsubscribe();
-      topicSubscription = client.subscribe(debateTopicDestination(debateId), frame => {
+      channelSubscription?.unsubscribe();
+      channelSubscription = client.subscribe(debateChannelDestination(debateId), frame => {
         logStompReceive({
           destination: frame.headers.destination,
           headers: frame.headers as Record<string, string>,
@@ -133,11 +133,11 @@ export function createSttStompClient(handlers: SttStompClientHandlers = {}): Stt
         logStompReceiveParseFailure(frame.body, frame.headers.destination);
       });
 
-      return topicSubscription;
+      return channelSubscription;
     },
     unsubscribeAll() {
-      topicSubscription?.unsubscribe();
-      topicSubscription = null;
+      channelSubscription?.unsubscribe();
+      channelSubscription = null;
     },
     sendStart(debateId) {
       if (!ensureConnected()) {

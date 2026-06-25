@@ -1,4 +1,4 @@
-export function debateTopicDestination(debateId: number): string {
+export function debateChannelDestination(debateId: number): string {
   return `/topic/debate/${debateId}`;
 }
 

@@ -256,7 +256,7 @@ export function useSttWebSocket(options: UseSttWebSocketOptions = {}): UseSttWeb
 
     flushPcmBufferIfNeeded();
 
-    client.subscribeTopic(activeDebateId, message => {
+    client.subscribeChannel(activeDebateId, message => {
       if (
         receiveBlockedRef.current &&
         message.type !== "DEBATE_END" &&

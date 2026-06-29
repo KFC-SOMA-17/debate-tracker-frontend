@@ -1,21 +1,10 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+import { ApiError } from "./errors";
+import { resolveApiUrl } from "./resolveApiUrl";
 
-type ApiErrorBody = {
-  message?: string;
-};
-
-export class ApiError extends Error {
-  readonly status: number;
-
-  constructor(status: number, message: string) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
+export { ApiError, type ApiErrorBody, isApiErrorBody } from "./errors";
 
 export async function apiClient<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = `${API_BASE_URL}${path}`;
+  const url = resolveApiUrl(path);
   const response = await fetch(url, {
     ...init,
     headers: {
@@ -25,14 +14,13 @@ export async function apiClient<T>(path: string, init?: RequestInit): Promise<T>
   });
 
   if (!response.ok) {
-    let message = response.statusText;
+    let body: unknown;
     try {
-      const body = (await response.json()) as ApiErrorBody;
-      message = body.message ?? message;
+      body = await response.json();
     } catch {
-      // non-JSON error body
+      body = undefined;
     }
-    throw new ApiError(response.status, message);
+    throw ApiError.fromResponse(response.status, body);
   }
 
   if (response.status === 204) {

@@ -1,0 +1,52 @@
+name: 작업 이슈
+description: 작업 내용, 목적, 완료 기준을 정리합니다.
+title: "제목"
+labels: []
+assignees: []
+
+body:
+  - type: textarea
+    id: task-content
+    attributes:
+      label: 작업 내용
+      description: 작업 내용, 목적, 상세 목록, 완료 기준을 작성해주세요.
+      value: |
+        ## 작업 내용
+
+        <!-- 어떤 작업을 진행하는지 간단히 작성합니다. -->
+
+        ## 작업 목적
+
+        <!-- 이 작업이 필요한 이유를 작성합니다. -->
+
+        ## 상세 작업 목록
+
+        - [ ]
+        - [ ]
+        - [ ]
+
+        ## 완료 기준
+
+        <!-- 어떤 상태가 되면 이 issue를 완료할 수 있는지 작성합니다. -->
+
+        - [ ]
+        - [ ]
+
+        ## 참고 사항
+
+        <!-- 관련 문서, 디자인, API, 논의 내용 등이 있다면 작성합니다. -->
+
+        -
+    validations:
+      required: true
+
+  - type: input
+    id: deadline
+    attributes:
+      label: 마감기한
+      description: |
+        ⚠️ 반드시 `YYYY-MM-DD` 형식으로 입력해주세요.
+        예시: 2026-06-15
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true

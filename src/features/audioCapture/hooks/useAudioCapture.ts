@@ -10,6 +10,7 @@ import { ChunkAccumulator } from "../lib/accumulateChunks";
 import { computeRmsFromInt16 } from "../lib/chunkMetrics";
 import { DownsampleStream } from "../lib/downsample";
 import { createHighpassFilter } from "../lib/noiseFilter";
+import pcmCaptureProcessorUrl from "../worklets/pcmCaptureProcessor.ts?worker&url";
 import type {
   AudioCaptureState,
   AudioChunkMeta,
@@ -189,7 +190,7 @@ export function useAudioCapture({ enabled, onChunk }: UseAudioCaptureOptions): U
 
     const sourceSampleRate = context.sampleRate;
     downsampleStreamRef.current = new DownsampleStream(sourceSampleRate, TARGET_SAMPLE_RATE);
-    await context.audioWorklet.addModule(new URL("../worklets/pcmCaptureProcessor.ts", import.meta.url));
+    await context.audioWorklet.addModule(pcmCaptureProcessorUrl);
 
     const source = context.createMediaStreamSource(stream);
     const highpass = createHighpassFilter(context, source);
